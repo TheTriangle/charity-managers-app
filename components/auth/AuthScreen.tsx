@@ -1,10 +1,10 @@
-import {StatusBar} from 'expo-status-bar';
 import {StyleSheet, Text, View} from 'react-native';
-import MainStack from './Navigate'
 
-export default function App() {
+export default function AuthScreen() {
     return (
-        <MainStack/>
+        <View style={styles.container}>
+
+        </View>
     );
 }
 
