@@ -1,7 +1,7 @@
 import {StyleSheet} from 'react-native';
 import MainStack from './Navigate'
 import {Provider} from "react-redux";
-import {store} from "./store/store";
+import {store} from "./redux/store";
 
 export default function App() {
     return (
