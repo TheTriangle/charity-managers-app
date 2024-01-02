@@ -1,5 +1,5 @@
 import {createStackNavigator} from "@react-navigation/stack";
-import AuthScreen from "./components/auth/AuthScreen"
+import AuthScreen from "./ui/auth/screens/AuthScreen"
 import {NavigationContainer} from "@react-navigation/native";
 
 const commonOptions = {
