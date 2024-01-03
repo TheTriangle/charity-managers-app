@@ -1,7 +1,7 @@
 import {StyleSheet, View, TextInput, Alert} from 'react-native';
 import {BACKGROUND_COLOR, BORDER_COLOR_RED} from "../../../styles/colors";
 import {auth} from "../../../firebase/config";
-import {GoogleSignin, GoogleSigninButton} from '@react-native-google-signin/google-signin';
+import {GoogleSigninButton} from '@react-native-google-signin/google-signin';
 import Toast from 'react-native-simple-toast';
 import {useSelector} from "react-redux";
 import {selectAuthState} from "../../../redux/selectors";
@@ -23,11 +23,6 @@ export default function AuthScreen() {
     const [validEmail, setValidEmail] = useState(true)
     const [validPassword, setValidPassword] = useState(true)
 
-    // useEffect(() => {
-    //     auth.signOut()
-    //     GoogleSignin.signOut()
-    // })
-
     const isFirebaseError = (error: any): error is firebase.auth.Error => {
         return typeof error.code === 'string' && typeof error.message === 'string';
     };
@@ -37,7 +32,10 @@ export default function AuthScreen() {
             await dispatch(signInAsyncGoogle()).unwrap()
             console.log("logged in as: " + auth.currentUser?.uid)
         } catch (e) {
-            if (authState.error !== "Sign in action cancelled") {
+            if (isFirebaseError(e)) {if (e.code != "12501") {
+                    Toast.show("Ошибка авторизации", Toast.LONG)
+                }
+            } else {
                 Toast.show("Ошибка авторизации", Toast.LONG)
             }
             console.log("Google auth error: " + authState.error)
