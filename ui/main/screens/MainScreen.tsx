@@ -1,8 +1,12 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
-export default function AuthScreen() {
+export default function MainScreen() {
+
+
+
+
     return (
-        <View style={styles.container}>
+        <View>
 
         </View>
     );
