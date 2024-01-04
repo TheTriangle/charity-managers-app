@@ -1,4 +1,4 @@
-import {StyleSheet, View, TextInput, Alert} from 'react-native';
+import {Alert, StyleSheet, TextInput, View} from 'react-native';
 import {BACKGROUND_COLOR, BORDER_COLOR_RED} from "../../../styles/colors";
 import {auth} from "../../../firebase/config";
 import {GoogleSigninButton} from '@react-native-google-signin/google-signin';
@@ -14,6 +14,7 @@ import PrivacyPolicyLabel from "../components/PrivacyPolicyLabel";
 import AuthButton from "../components/AuthButton";
 import firebase from "firebase/compat";
 import {userExists} from "../../../data/repo/repository";
+import {AuthMethods} from "../../../data/model/authMethods";
 
 export default function AuthScreen() {
     const dispatch = useAppDispatch();
@@ -32,7 +33,8 @@ export default function AuthScreen() {
             await dispatch(signInAsyncGoogle()).unwrap()
             console.log("logged in as: " + auth.currentUser?.uid)
         } catch (e) {
-            if (isFirebaseError(e)) {if (e.code != "12501") {
+            if (isFirebaseError(e)) {
+                if (e.code != "12501") {
                     Toast.show("Ошибка авторизации", Toast.LONG)
                 }
             } else {
@@ -47,42 +49,54 @@ export default function AuthScreen() {
         return regex.test(password)
     }
 
+    const loginAlert = (title: string, text: string) => Alert.alert(
+        title,
+        text,
+        [
+            {
+                text: 'Нет',
+                style: 'cancel',
+            },
+            {
+                text: 'Да',
+                onPress: async () => {
+                    if (validatePassword()) {
+                        await dispatch(signUpAsyncEmail({email, password})).unwrap()
+                        console.log("logged in as: " + auth.currentUser?.uid)
+                    } else {
+                        Alert.alert('Некорректный пароль', 'Пароль должен быть длиной от 8 до 32 символов, состоять из латнских символов, содержать минимум одну заглавную, одну строчную и одну цифру.');
+                    }
+                },
+            },
+        ],
+    );
+
     const signInEmail = async () => {
         try {
-            const exists = await userExists(email)
-
-            if (exists) {
+            const methods = await userExists(email)
+            console.log(methods)
+            if (methods & AuthMethods.EMAIL) {
                 await dispatch(signInAsyncEmail({email, password})).unwrap()
                 console.log("logged in as: " + auth.currentUser?.uid)
+                return
+            } else if (methods & (AuthMethods.APPLE | AuthMethods.GOOGLE)) {
+                loginAlert("Способ входа не найден", "Похоже, вы уже зарегистрированы при помощи аккаунта Apple или Google.\n" +
+                    "Вы можете продолжить и добавить введенный пароль к своему аккаунту или войти через платформу\n" +
+                    "Вы хотите добавить введенный пароль?")
             } else {
-                Alert.alert(
-                    'Пользователь не найден',
-                    'Пользователь с указанной электронной почтой не найден.\n' +
-                    'Вы хотите зарегистрироваться с этими данными?',
-                    [
-                        {
-                            text: 'Нет',
-                            style: 'cancel',
-                        },
-                        {
-                            text: 'Да',
-                            onPress: async () => {
-                                if (validatePassword()) {
-                                    await dispatch(signUpAsyncEmail({email, password})).unwrap()
-                                    console.log("logged in as: " + auth.currentUser?.uid)
-                                } else {
-                                    Alert.alert('Некорректный пароль', 'Пароль должен быть длиной от 8 до 32 символов, состоять из латнских символов, содержать минимум одну заглавную, одну строчную и одну цифру.');
-                                }
-                            },
-                        },
-                    ],
-                );
+                loginAlert("Пользователь не найден", "Пользователь с указанной электронной почтой не найден.\n" +
+                    "Вы хотите зарегистрироваться с этими данными?")
             }
-
         } catch (e) {
             if (isFirebaseError(e)) {
                 if (e.code == "auth/wrong-password") {
                     Toast.show("Введен неверный пароль", Toast.LONG)
+                }
+                if (e.code == "auth/invalid-email") {
+                    Toast.show("Введен некорректный адрес электронной почты", Toast.LONG)
+                }
+                if (e.code == "auth/too-many-requests") {
+                    Toast.show("Слишком много попыток входа в аккаунт, попробуйте позднее", Toast.LONG)
                 }
             }
             console.log("Email auth error: " + authState.error)
