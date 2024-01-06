@@ -15,6 +15,7 @@ import AuthButton from "../components/AuthButton";
 import firebase from "firebase/compat";
 import {userExists} from "../../../data/repo/repository";
 import {AuthMethods} from "../../../data/model/authMethods";
+import {isFirebaseError} from "../../../utils/isFirebaseError";
 
 export default function AuthScreen() {
     const dispatch = useAppDispatch();
@@ -23,10 +24,6 @@ export default function AuthScreen() {
     const [password, setPassword] = useState("")
     const [validEmail, setValidEmail] = useState(true)
     const [validPassword, setValidPassword] = useState(true)
-
-    const isFirebaseError = (error: any): error is firebase.auth.Error => {
-        return typeof error.code === 'string' && typeof error.message === 'string';
-    };
 
     const signInGoogle = async () => {
         try {
