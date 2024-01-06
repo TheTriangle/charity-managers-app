@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignSelf: "center",
         justifyContent: 'space-around',
-        marginVertical: 4,
+        marginVertical: "2%",
         width: "100%"
     },
     buttonContainer: {

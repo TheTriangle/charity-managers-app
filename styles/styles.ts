@@ -6,5 +6,5 @@ export const textInput: ViewStyle = {
     borderWidth: 1,
     borderColor: BORDER_COLOR,
     paddingHorizontal: 5,
-    marginVertical: 4
+    marginVertical: "2%"
 }

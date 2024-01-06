@@ -8,6 +8,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-native-google-signin/google-signin": "^11.0.0",
     "@react-navigation/native": "^6.1.9",
@@ -28,8 +29,8 @@
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "~3.22.0",
     "react-native-simple-toast": "^3.2.0",
-    "react-redux": "^9.0.4",
-    "@react-native-async-storage/async-storage": "1.18.2"
+    "react-native-text-input-mask": "^3.2.0",
+    "react-redux": "^9.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
