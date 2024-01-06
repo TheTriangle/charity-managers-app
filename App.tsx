@@ -1,20 +1,22 @@
 import {StyleSheet, Text, View} from 'react-native';
 import MainStack from './Navigate'
-import {Provider} from "react-redux";
+import {Provider, useSelector} from "react-redux";
 import {store} from "./redux/store";
 import React, {useCallback, useEffect, useState} from "react";
 import {auth} from "./firebase/config";
 import * as SplashScreen from 'expo-splash-screen';
+import {authorize} from "./redux/slices/authSlice";
 
 
 SplashScreen.preventAutoHideAsync();
 export default function App() {
     const [appIsReady, setAppIsReady] = useState(false);
-    const [loggedIn, setLoggedIn] = useState(false)
 
     useEffect(() => {
         return auth.onAuthStateChanged((user) => {
-            setLoggedIn(user !== null)
+            if (user !== null) {
+                store.dispatch(authorize())
+            }
             setAppIsReady(true)
         })
     }, []);
@@ -32,7 +34,7 @@ export default function App() {
     return (
         <View style={{flex: 1}} onLayout={onLayoutRootView}>
             <Provider store={store}>
-                <MainStack loggedIn={loggedIn}/>
+                <MainStack />
             </Provider>
         </View>
 
