@@ -2,6 +2,8 @@ import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {GoogleAuthProvider} from "firebase/auth";
 import {auth} from "../../firebase/config";
+import {hasManagerAccount} from "../../data/repo/repository";
+import {updateManagerInfo} from "./profileSlice";
 
 export const signInAsyncGoogle = createAsyncThunk('auth/signInAsyncGoogle',
     async () => {
@@ -24,6 +26,11 @@ export const signUpAsyncEmail = createAsyncThunk('auth/signUpAsyncEmail', async 
     await auth.createUserWithEmailAndPassword(credentials.email, credentials.password)
 })
 
+export const hasProfile = createAsyncThunk('auth/hasProfile',
+    async () => {
+        return await hasManagerAccount()
+    });
+
 export const signOut = createAsyncThunk('auth/signOut', async () => {
     await auth.signOut()
     await GoogleSignin.signOut()
@@ -33,13 +40,15 @@ export const signOut = createAsyncThunk('auth/signOut', async () => {
 interface initialStateType {
     loading: boolean,
     error: string | undefined | null,
-    authorized: boolean
+    authorized: boolean,
+    hasProfile: boolean,
 }
 
 const initialState: initialStateType = {
     loading: false,
     error: null,
-    authorized: false
+    authorized: false,
+    hasProfile: false
 }
 
 const authSlice = createSlice({
@@ -102,6 +111,23 @@ const authSlice = createSlice({
             .addCase(signOut.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
+            })
+
+            .addCase(hasProfile.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(hasProfile.fulfilled, (state, action) => {
+                state.hasProfile = action.payload
+                state.loading = false;
+            })
+            .addCase(hasProfile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+
+            .addCase(updateManagerInfo.fulfilled, (state, action) => {
+                state.hasProfile = true
             })
     },
 });

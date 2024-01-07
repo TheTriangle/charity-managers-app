@@ -30,7 +30,8 @@
     "react-native-screens": "~3.22.0",
     "react-native-simple-toast": "^3.2.0",
     "react-native-text-input-mask": "^3.2.0",
-    "react-redux": "^9.0.4"
+    "react-redux": "^9.0.4",
+    "@react-native-community/netinfo": "9.3.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

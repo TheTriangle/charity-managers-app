@@ -1,11 +1,13 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import MainStack from './Navigate'
-import {Provider, useSelector} from "react-redux";
+import {Provider} from "react-redux";
 import {store} from "./redux/store";
 import React, {useCallback, useEffect, useState} from "react";
 import {auth} from "./firebase/config";
 import * as SplashScreen from 'expo-splash-screen';
-import {authorize} from "./redux/slices/authSlice";
+import {authorize, hasProfile, signOut} from "./redux/slices/authSlice";
+import Toast from "react-native-simple-toast";
+import {isFirebaseError} from "./utils/isFirebaseError";
 
 
 SplashScreen.preventAutoHideAsync();
@@ -13,13 +15,23 @@ export default function App() {
     const [appIsReady, setAppIsReady] = useState(false);
 
     useEffect(() => {
-        return auth.onAuthStateChanged((user) => {
+        return auth.onAuthStateChanged(async (user) => {
             if (user !== null) {
-                store.dispatch(authorize())
+                try {
+                    await store.dispatch(hasProfile()).unwrap()
+                    store.dispatch(authorize())
+                } catch (e) {
+                    if (isFirebaseError(e)) {
+                        console.log(e.code)
+                    }
+                    Toast.show("Ошибка авторизации", Toast.LONG)
+                    await store.dispatch(signOut())
+                }
             }
             setAppIsReady(true)
         })
     }, []);
+
 
     const onLayoutRootView = useCallback(async () => {
         if (appIsReady) {

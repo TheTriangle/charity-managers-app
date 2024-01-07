@@ -26,11 +26,14 @@ export default function Navigate() {
                 <>
                     <MainStack.Screen name="Login" component={AuthScreen} options={loginOptions}/>
                 </>
-                : // Если есть профиль, то показываем мейн, если нет, то показываем филл
-                <>
-                    <MainStack.Screen name="Fill" component={ProfileFill} options={commonOptions}/>
-                    <MainStack.Screen name="Main" component={MainScreen} options={commonOptions}/>
-                </>
+                : !authState.hasProfile ?
+                    <>
+                        <MainStack.Screen name="Fill" component={ProfileFill} options={commonOptions}/>
+                    </>
+                    :
+                    <>
+                        <MainStack.Screen name="Main" component={MainScreen} options={commonOptions}/>
+                    </>
             }
         </MainStack.Navigator>
     </NavigationContainer>
