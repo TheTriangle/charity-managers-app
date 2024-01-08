@@ -16,6 +16,7 @@ import firebase from "firebase/compat";
 import {userExists} from "../../../data/repo/repository";
 import {AuthMethods} from "../../../data/model/authMethods";
 import {isFirebaseError} from "../../../utils/isFirebaseError";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function AuthScreen() {
     const dispatch = useAppDispatch();
@@ -95,8 +96,11 @@ export default function AuthScreen() {
                 if (e.code == "auth/too-many-requests") {
                     Toast.show("Слишком много попыток входа в аккаунт, попробуйте позднее", Toast.LONG)
                 }
+                if (e.code == "auth/network-request-failed") {
+                    Toast.show("Нет подключения к интернету", Toast.LONG)
+                }
             }
-            console.log("Email auth error: " + authState.error)
+            console.log("Email auth error: " + e)
         }
     }
 
