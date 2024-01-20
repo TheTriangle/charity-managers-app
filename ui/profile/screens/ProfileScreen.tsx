@@ -1,13 +1,12 @@
-import {StyleSheet, View} from 'react-native';
-
-export default function MainScreen() {
-
+import {StyleSheet, Text, View} from 'react-native';
+import React, {} from "react";
 
 
 
+export default function ProfileScreen() {
     return (
-        <View>
-
+        <View style={styles.container}>
+        <Text>Profile</Text>
         </View>
     );
 }
