@@ -4,18 +4,18 @@ export default function PagerTitle({firstLabel, secondLabel, selected, onSelect}
     firstLabel: string,
     secondLabel: string,
     selected: number,
-    onSelect: (id: 1 | 2) => void;
+    onSelect: (id: 0 | 1) => void;
 }) {
     return (
         <View style={styles.container}>
-            <Pressable style={{padding: 20}} onPress={() => onSelect(1)}>
-                <Text style={[selected == 1 ? styles.selectedTextStyle : styles.unselectedTextStyle]}>{firstLabel}</Text>
-                {selected == 1 && <View style={styles.line}/>}
+            <Pressable style={{padding: 20}} onPress={() => onSelect(0)}>
+                <Text style={[selected == 0 ? styles.selectedTextStyle : styles.unselectedTextStyle]}>{firstLabel}</Text>
+                {selected == 0 && <View style={styles.line}/>}
             </Pressable>
 
-            <Pressable style={{padding: 20}} onPress={() => onSelect(2)}>
-                <Text style={[selected == 2 ? styles.selectedTextStyle : styles.unselectedTextStyle]}>{secondLabel}</Text>
-                {selected == 2 && <View style={styles.line}/>}
+            <Pressable style={{padding: 20}} onPress={() => onSelect(1)}>
+                <Text style={[selected == 1 ? styles.selectedTextStyle : styles.unselectedTextStyle]}>{secondLabel}</Text>
+                {selected == 1 && <View style={styles.line}/>}
             </Pressable>
         </View>
     );
