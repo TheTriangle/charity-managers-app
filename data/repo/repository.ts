@@ -1,8 +1,9 @@
 import {auth} from "../../firebase/config";
 import {AuthMethods} from "../model/authMethods";
 import firebase from "firebase/compat";
-import firestore = firebase.firestore;
 import NetInfo from "@react-native-community/netinfo";
+import {CharityModel} from "../model/СharityModel";
+import firestore = firebase.firestore;
 
 export const userExists = async (
     email: string,
@@ -44,5 +45,14 @@ export const fillManagerData = async (managerData: {
         await doc.update(managerData)
     } else {
         throw Error("No internet connection")
+    }
+}
+
+export const getAllCharities = async (uid: string) => {
+    const docs = await firestore().collection("charities").where("creatorid", "==", uid).get()
+    if (!docs.empty) {
+        return docs.docs.map(value => value.data() as CharityModel)
+    } else {
+        return []
     }
 }

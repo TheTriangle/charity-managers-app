@@ -1,36 +1,46 @@
 import {StyleSheet, Text, View} from 'react-native';
 import PagerTitle from "../components/PagerTitle";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {BACKGROUND_COLOR} from "../../../styles/colors";
 import {CharityModel} from "../../../data/model/СharityModel";
 import {FlatList} from "react-native-gesture-handler";
 import CharityListItem from "../../charity/components/CharityListItem";
 import PagerView from "react-native-pager-view";
 import {refresh} from "@react-native-community/netinfo";
+import {useAppDispatch} from "../../../hooks";
+import {getCharities} from "../../../redux/slices/charitiesSlice";
+import {useSelector} from "react-redux";
+import {selectCharitiesState} from "../../../redux/selectors";
 
 export default function OrganizationsScreen() {
     const [page, setPage] = useState<number>(0)
     const pagerRef = useRef<PagerView>(null);
+    const state = useSelector(selectCharitiesState)
+    const dispatch = useAppDispatch()
+    useEffect(() => {
+        dispatch(getCharities())
+    }, []);
+
     const orgsSample: CharityModel[] = [{
         name: "Name",
         briefDescription: "slfjlkjsflsajflsjflkjslf lksjfljdslkfjsalj flj lafdlfldjlkf jasdlfjalksjd lsjadfl kjsdfl jasf",
         description: "slfjlkjsflsajflsjflkjslf lksjfljdslkfjsalj flj lafdlfldjlkf jasdlfjalksjd lsjadfl kjsdfl jasf",
         url: null,
         address: null,
-        tags: []
+        tags: [],
+        confirmed: false,
+        creatorid: "",
+        photourl: "",
+        organization: false,
+        managerContact: "",
+        campaigns: [],
+        fullName: "string",
+        ogrn: "string",
+        egrul: "string",
     },
-        {
-            name: "Name22",
-            briefDescription: "slfjlkjsflsajflsjflkjslf lksjfljdslkfjsalj flj lafdlfldjlkf jasdlfjalksjd lsjadfl kjsdfl jasf",
-            description: "slfjlkjsflsajflsjflkjslf lksjfljdslkfjsalj flj lafdlfldjlkf jasdlfjalksjd lsjadfl kjsdfl jasf",
-            url: null,
-            address: null,
-            tags: []
-        }
     ]
 
     const changePage = (pageNum: number) => {
-        console.log(pageNum)
         setPage(pageNum)
         if (pagerRef.current) {
             pagerRef.current.setPage(pageNum)
@@ -47,7 +57,7 @@ export default function OrganizationsScreen() {
                            setPage(event.nativeEvent.position)
                        }}>
                 <View key="1">
-                    <FlatList style={{width: "100%"}} data={orgsSample} renderItem={(item => {
+                    <FlatList style={{width: "100%"}} data={state.confirmedCharities} renderItem={(item => {
                         return <CharityListItem charity={item.item} onPress={(charity) => {
                         }}/>
                     })}
