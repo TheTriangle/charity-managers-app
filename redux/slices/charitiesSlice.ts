@@ -39,7 +39,7 @@ const profileSlice = createSlice({
             })
             .addCase(getCharities.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.error.message;
+                state.error = action.error.message ? action.error.message : "";
             })
     },
 });
