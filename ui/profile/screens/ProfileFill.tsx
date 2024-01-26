@@ -10,6 +10,7 @@ import Spinner from "react-native-loading-spinner-overlay";
 import {selectProfileState} from "../../../redux/selectors";
 import {useSelector} from "react-redux";
 import Toast from "react-native-simple-toast";
+import Button from "../../utils/Button";
 
 
 export default function ProfileFill() {
@@ -99,14 +100,9 @@ export default function ProfileFill() {
 
             </KeyboardAvoidingView>
 
-
-            <Pressable style={[styles.buttonContainer, !infoFilled() && {backgroundColor: BUTTON_INACTIVE_COLOR}]}
-                       onPress={infoFilled() ? () => {
-                           fillProfile()
-                       } : undefined}
-            >
-                <Text style={styles.buttonText}>Готово</Text>
-            </Pressable>
+            <Button text={"Готово"} onPress={infoFilled() ? () => {
+                fillProfile()
+            } : undefined} containerStyle={!infoFilled() ? {backgroundColor: BUTTON_INACTIVE_COLOR} : {}}/>
 
         </View>
     );
@@ -139,7 +135,6 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         padding: 8,
         paddingHorizontal: "20%",
-        marginVertical: "2%",
         borderRadius: 100,
         backgroundColor: BUTTON_ACTIVE_COLOR
     },
