@@ -1,7 +1,7 @@
 import {createStackNavigator} from "@react-navigation/stack";
 import AuthScreen from "./ui/auth/screens/AuthScreen"
-import {NavigationContainer} from "@react-navigation/native";
-import {BottomTabNavigationProp, createBottomTabNavigator} from "@react-navigation/bottom-tabs";
+import {getFocusedRouteNameFromRoute, NavigationContainer} from "@react-navigation/native";
+import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import OrganizationsScreen from "./ui/main/screens/OrganizationsScreen";
 import ProfileFill from "./ui/profile/screens/ProfileFill";
 import {useSelector} from "react-redux";
@@ -10,6 +10,8 @@ import ProfileScreen from "./ui/profile/screens/ProfileScreen";
 import {SvgXml} from "react-native-svg";
 import {iconHome} from "./assets/iconHome";
 import {iconProfile} from "./assets/iconProfile";
+import CharityCreationScreen from "./ui/charity/screens/CharityCreationScreen";
+import React from "react";
 
 const commonOptions = {
     headerShown: false,
@@ -55,6 +57,10 @@ const organizationsOptions = {
 
 }
 
+const creationOptions = {
+    ...commonOptions,
+}
+
 const ProfileStack = createStackNavigator()
 
 const ProfileStackNavigator = () => {
@@ -65,9 +71,20 @@ const ProfileStackNavigator = () => {
 
 const OrganizationsStack = createStackNavigator()
 
-const OrganizationsStackNavigator = () => {
+// @ts-ignore
+const OrganizationsStackNavigator = ({ navigation, route }) => {
+    const tabHiddenRoutes = ["CreateCharity"];
+    React.useLayoutEffect(() => {
+        // const routeName = getFocusedRouteNameFromRoute(route);
+        if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route) as string)){
+            navigation.setOptions({tabBarStyle: {height: "8%", display: 'none'}});
+        } else {
+            navigation.setOptions({tabBarStyle: {height: "8%", display: 'flex'}});
+        }
+    }, [navigation, route]);
     return <OrganizationsStack.Navigator>
         <OrganizationsStack.Screen name={"AllOrganizations"} component={OrganizationsScreen} options={organizationsOptions}/>
+        <OrganizationsStack.Screen name={"CreateCharity"} component={CharityCreationScreen} options={creationOptions}/>
     </OrganizationsStack.Navigator>
 }
 
