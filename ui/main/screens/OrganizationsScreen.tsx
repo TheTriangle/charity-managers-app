@@ -12,12 +12,15 @@ import {useSelector} from "react-redux";
 import {selectCharitiesState} from "../../../redux/selectors";
 import Button from "../../utils/Button";
 import {AntDesign} from '@expo/vector-icons';
+import {useIsFocused, useNavigation} from "@react-navigation/native";
 
 export default function OrganizationsScreen() {
     const [page, setPage] = useState<number>(0)
     const pagerRef = useRef<PagerView>(null);
     const state = useSelector(selectCharitiesState)
     const dispatch = useAppDispatch()
+    const nav = useNavigation<any>()
+
     useEffect(() => {
         dispatch(getCharities())
     }, []);
@@ -84,7 +87,7 @@ export default function OrganizationsScreen() {
                                     state.unconfirmedCharities.length == 0 ?
                                         <View style={{flex: 1, justifyContent: "center", alignSelf: "center"}}>
                                             <Text style={styles.hintText}>Нет заявок на добавление</Text>
-                                            <Button onPress={undefined} text={"Создать"}/>
+                                            <Button onPress={() => nav.navigate("CreateCharity")} text={"Создать"}/>
                                         </View>
                                         :
                                         <>
