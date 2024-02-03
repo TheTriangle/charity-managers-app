@@ -12,7 +12,7 @@ import {useSelector} from "react-redux";
 import {selectCharitiesState} from "../../../redux/selectors";
 import Button from "../../utils/Button";
 import {AntDesign} from '@expo/vector-icons';
-import {useIsFocused, useNavigation} from "@react-navigation/native";
+import {useNavigation} from "@react-navigation/native";
 
 export default function OrganizationsScreen() {
     const [page, setPage] = useState<number>(0)
@@ -24,25 +24,6 @@ export default function OrganizationsScreen() {
     useEffect(() => {
         dispatch(getCharities())
     }, []);
-
-    const orgsSample: CharityModel[] = [{
-        name: "Name",
-        briefDescription: "slfjlkjsflsajflsjflkjslf lksjfljdslkfjsalj flj lafdlfldjlkf jasdlfjalksjd lsjadfl kjsdfl jasf",
-        description: "slfjlkjsflsajflsjflkjslf lksjfljdslkfjsalj flj lafdlfldjlkf jasdlfjalksjd lsjadfl kjsdfl jasf",
-        url: null,
-        address: null,
-        tags: [],
-        confirmed: false,
-        creatorid: "",
-        photourl: "",
-        organization: false,
-        managerContact: "",
-        campaigns: [],
-        fullName: "string",
-        ogrn: "string",
-        egrul: "string",
-    },
-    ]
 
     const changePage = (pageNum: number) => {
         setPage(pageNum)
@@ -91,16 +72,16 @@ export default function OrganizationsScreen() {
                                         </View>
                                         :
                                         <>
-                                            <FlatList style={{width: "100%"}} data={state.confirmedCharities}
-                                                      renderItem={(item => {
-                                                          return <CharityListItem charity={item.item}
+                                            <FlatList style={{width: "100%"}} data={state.unconfirmedCharities}
+                                                      renderItem={(({item, index}) => {
+                                                          return <CharityListItem charity={item}
                                                                                   onPress={(charity) => {
                                                                                   }}/>
                                                       })}
                                                       ItemSeparatorComponent={() => <View style={{height: 20}}/>}
                                             />
                                             <AntDesign style={{position: "absolute", right: 10, bottom: 10}}
-                                                       name="pluscircle" size={54} color={PRIMARY_COLOR}/>
+                                                       name="pluscircle" size={54} color={PRIMARY_COLOR} onPress={() => nav.navigate("CreateCharity")}/>
                                         </>
 
                                 }

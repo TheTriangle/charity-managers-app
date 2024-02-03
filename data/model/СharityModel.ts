@@ -9,6 +9,7 @@ export interface CharityModel {
     description: string;
     egrul: string;
     fullName: string;
+    location: LocationModel | undefined;
     managerContact: string;
     name: string;
     organization: boolean;
