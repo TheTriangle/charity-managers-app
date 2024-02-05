@@ -1,6 +1,6 @@
-import {KeyboardAvoidingView, Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import {KeyboardAvoidingView, StyleSheet, Text, TextInput, View} from 'react-native';
 import React, {useState} from "react";
-import {BUTTON_ACTIVE_COLOR, BUTTON_INACTIVE_COLOR} from "../../../styles/colors";
+import {BUTTON_ACTIVE_COLOR} from "../../../styles/colors";
 import ButtonRow from "../components/ButtonRow";
 import {textInput} from "../../../styles/styles";
 import TextInputMask from "react-native-text-input-mask";
@@ -100,9 +100,7 @@ export default function ProfileFill() {
 
             </KeyboardAvoidingView>
 
-            <Button text={"Готово"} onPress={infoFilled() ? () => {
-                fillProfile()
-            } : undefined} containerStyle={!infoFilled() ? {backgroundColor: BUTTON_INACTIVE_COLOR} : {}}/>
+            <Button text={"Готово"} onPress={fillProfile} active={infoFilled()}/>
 
         </View>
     );

@@ -2,7 +2,6 @@ import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import PagerTitle from "../components/PagerTitle";
 import React, {useEffect, useRef, useState} from "react";
 import {BACKGROUND_COLOR, PRIMARY_COLOR} from "../../../styles/colors";
-import {CharityModel} from "../../../data/model/СharityModel";
 import {FlatList} from "react-native-gesture-handler";
 import CharityListItem from "../../charity/components/CharityListItem";
 import PagerView from "react-native-pager-view";
@@ -12,34 +11,18 @@ import {useSelector} from "react-redux";
 import {selectCharitiesState} from "../../../redux/selectors";
 import Button from "../../utils/Button";
 import {AntDesign} from '@expo/vector-icons';
+import {useNavigation} from "@react-navigation/native";
 
 export default function OrganizationsScreen() {
     const [page, setPage] = useState<number>(0)
     const pagerRef = useRef<PagerView>(null);
     const state = useSelector(selectCharitiesState)
     const dispatch = useAppDispatch()
+    const nav = useNavigation<any>()
+
     useEffect(() => {
         dispatch(getCharities())
     }, []);
-
-    const orgsSample: CharityModel[] = [{
-        name: "Name",
-        briefDescription: "slfjlkjsflsajflsjflkjslf lksjfljdslkfjsalj flj lafdlfldjlkf jasdlfjalksjd lsjadfl kjsdfl jasf",
-        description: "slfjlkjsflsajflsjflkjslf lksjfljdslkfjsalj flj lafdlfldjlkf jasdlfjalksjd lsjadfl kjsdfl jasf",
-        url: null,
-        address: null,
-        tags: [],
-        confirmed: false,
-        creatorid: "",
-        photourl: "",
-        organization: false,
-        managerContact: "",
-        campaigns: [],
-        fullName: "string",
-        ogrn: "string",
-        egrul: "string",
-    },
-    ]
 
     const changePage = (pageNum: number) => {
         setPage(pageNum)
@@ -84,20 +67,21 @@ export default function OrganizationsScreen() {
                                     state.unconfirmedCharities.length == 0 ?
                                         <View style={{flex: 1, justifyContent: "center", alignSelf: "center"}}>
                                             <Text style={styles.hintText}>Нет заявок на добавление</Text>
-                                            <Button onPress={undefined} text={"Создать"}/>
+                                            <Button onPress={() => nav.navigate("CreateCharity", {})} text={"Создать"}/>
                                         </View>
                                         :
                                         <>
-                                            <FlatList style={{width: "100%"}} data={state.confirmedCharities}
-                                                      renderItem={(item => {
-                                                          return <CharityListItem charity={item.item}
+                                            <FlatList style={{width: "100%"}} data={state.unconfirmedCharities}
+                                                      renderItem={(({item}) => {
+                                                          return <CharityListItem charity={item}
                                                                                   onPress={(charity) => {
+                                                                                      nav.navigate("CreateCharity", {charity: charity})
                                                                                   }}/>
                                                       })}
                                                       ItemSeparatorComponent={() => <View style={{height: 20}}/>}
                                             />
                                             <AntDesign style={{position: "absolute", right: 10, bottom: 10}}
-                                                       name="pluscircle" size={54} color={PRIMARY_COLOR}/>
+                                                       name="pluscircle" size={54} color={PRIMARY_COLOR} onPress={() => nav.navigate("CreateCharity", {})}/>
                                         </>
 
                                 }

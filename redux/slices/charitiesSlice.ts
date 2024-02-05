@@ -2,21 +2,44 @@ import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {CharityModel} from "../../data/model/СharityModel";
 import {getAllCharities} from "../../data/repo/repository";
 import {auth} from "../../firebase/config";
+import axios from "axios";
 
 export const getCharities = createAsyncThunk('charities/getCharities', async () => {
     return await getAllCharities(auth.currentUser!!.uid)
 })
 
+export const createCharity = createAsyncThunk('charities/createCharity', async (charity: CharityModel) => {
+    const response = await axios.post<{message: string, charityId: string}>("https://us-central1-donapp-d2378.cloudfunctions.net/createCharity", {charity: charity}, {
+        headers: {
+            Authorization: await auth.currentUser!!.getIdToken()
+        }
+    })
+    return {...charity, id: response.data.charityId}
+})
+
+export const editCharity = createAsyncThunk('charities/editCharity', async (charity: CharityModel) => {
+    await axios.post<{message: string, charityId: string}>("https://us-central1-donapp-d2378.cloudfunctions.net/updateCharity ", {charity: charity}, {
+        headers: {
+            Authorization: await auth.currentUser!!.getIdToken()
+        }
+    })
+    return charity
+})
+
 interface initialStateType {
     loading: boolean,
+    editLoading: boolean,
     error: string | undefined | null,
+    editError: string | undefined | null,
     confirmedCharities: CharityModel[],
     unconfirmedCharities: CharityModel[],
 }
 
 const initialState: initialStateType = {
     loading: true,
+    editLoading: false,
     error: null,
+    editError: null,
     confirmedCharities: [],
     unconfirmedCharities: []
 }
@@ -28,8 +51,8 @@ const profileSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(getCharities.pending, (state) => {
-                state.loading = true;
-                state.error = null;
+                state.loading = true
+                state.error = null
             })
             .addCase(getCharities.fulfilled, (state, action) => {
                 state.confirmedCharities = action.payload.filter(value => value.confirmed)
@@ -38,9 +61,37 @@ const profileSlice = createSlice({
                 state.error = null
             })
             .addCase(getCharities.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message ? action.error.message : "";
+                state.loading = false
+                state.error = action.error.message ? action.error.message : ""
             })
+
+            .addCase(createCharity.pending, state => {
+                state.editLoading = true
+                state.editError = null
+            })
+            .addCase(createCharity.fulfilled, (state, action) => {
+                state.editLoading = false
+                state.unconfirmedCharities.push(action.payload)
+            })
+            .addCase(createCharity.rejected, (state, action) => {
+                state.editLoading = false
+                state.editError = action.error.message ? action.error.message : ""
+            })
+
+            .addCase(editCharity.pending, state => {
+                state.editLoading = true
+                state.editError = null
+            })
+            .addCase(editCharity.fulfilled, (state, action) => {
+                state.editLoading = false
+                const index = state.unconfirmedCharities.findIndex((charity) => charity.id === action.payload.id)
+                state.unconfirmedCharities[index] = action.payload
+            })
+            .addCase(editCharity.rejected, (state, action) => {
+                state.editLoading = false
+                state.editError = action.error.message ? action.error.message : ""
+            })
+
     },
 });
 
