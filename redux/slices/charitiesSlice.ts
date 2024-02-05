@@ -14,24 +14,32 @@ export const createCharity = createAsyncThunk('charities/createCharity', async (
             Authorization: await auth.currentUser!!.getIdToken()
         }
     })
-
     return {...charity, id: response.data.charityId}
+})
+
+export const editCharity = createAsyncThunk('charities/editCharity', async (charity: CharityModel) => {
+    await axios.post<{message: string, charityId: string}>("https://us-central1-donapp-d2378.cloudfunctions.net/updateCharity ", {charity: charity}, {
+        headers: {
+            Authorization: await auth.currentUser!!.getIdToken()
+        }
+    })
+    return charity
 })
 
 interface initialStateType {
     loading: boolean,
-    creationLoading: boolean,
+    editLoading: boolean,
     error: string | undefined | null,
-    creationError: string | undefined | null,
+    editError: string | undefined | null,
     confirmedCharities: CharityModel[],
     unconfirmedCharities: CharityModel[],
 }
 
 const initialState: initialStateType = {
     loading: true,
-    creationLoading: false,
+    editLoading: false,
     error: null,
-    creationError: null,
+    editError: null,
     confirmedCharities: [],
     unconfirmedCharities: []
 }
@@ -58,16 +66,30 @@ const profileSlice = createSlice({
             })
 
             .addCase(createCharity.pending, state => {
-                state.creationLoading = true
-                state.creationError = null
+                state.editLoading = true
+                state.editError = null
             })
             .addCase(createCharity.fulfilled, (state, action) => {
-                state.creationLoading = false
+                state.editLoading = false
                 state.unconfirmedCharities.push(action.payload)
             })
             .addCase(createCharity.rejected, (state, action) => {
-                state.creationLoading = false
-                state.creationError = action.error.message ? action.error.message : ""
+                state.editLoading = false
+                state.editError = action.error.message ? action.error.message : ""
+            })
+
+            .addCase(editCharity.pending, state => {
+                state.editLoading = true
+                state.editError = null
+            })
+            .addCase(editCharity.fulfilled, (state, action) => {
+                state.editLoading = false
+                const index = state.unconfirmedCharities.findIndex((charity) => charity.id === action.payload.id)
+                state.unconfirmedCharities[index] = action.payload
+            })
+            .addCase(editCharity.rejected, (state, action) => {
+                state.editLoading = false
+                state.editError = action.error.message ? action.error.message : ""
             })
 
     },

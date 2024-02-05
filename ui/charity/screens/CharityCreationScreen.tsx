@@ -24,29 +24,31 @@ import {PlacePickerResults} from "react-native-place-picker/src/interfaces";
 import {CharityModel} from "../../../data/model/СharityModel";
 import {auth} from "../../../firebase/config";
 import {useAppDispatch} from "../../../hooks";
-import {createCharity} from "../../../redux/slices/charitiesSlice";
+import {createCharity, editCharity} from "../../../redux/slices/charitiesSlice";
 import Toast from "react-native-simple-toast";
 import {AxiosError} from "axios";
 import Spinner from "react-native-loading-spinner-overlay";
+import {CreateCharityProps} from "../../../Navigate";
 
 
 const reactNativeTagSelect = require("react-native-tag-select")
 const TagSelect = reactNativeTagSelect.TagSelect
 
-export default function CharityCreationScreen() {
+export default function CharityCreationScreen({route: {params: {charity: existingCharity}}}: CreateCharityProps) {
+
     const btns = [{id: 1, title: "Частный сбор"}, {id: 2, title: "НКО"}]
-    const [selected, setSelected] = useState<number[]>([1])
-    const [name, setName] = useState<string>("")
-    const [briefDesc, setBriefDesc] = useState<string>("")
-    const [fullDesc, setFullDesc] = useState<string>("")
-    const [social, setSocial] = useState<string>("")
-    const [checkedTagsCount, setCheckedTagsCount] = useState(0)
-    const [fullName, setFullName] = useState<string>("")
-    const [ogrn, setOgrn] = useState<string>("")
-    const [egrul, setEgrul] = useState<string>("")
-    const [managerContact, setManagerContact] = useState<string>("")
-    const [selectedAddress, setSelectedAddress] = useState<string | undefined>(undefined);
-    const [selectedCoords, setSelectedCoords] = useState<LocationModel | undefined>(undefined);
+    const [selected, setSelected] = useState<number[]>(existingCharity ? existingCharity.organization ? [2] : [1] : [1])
+    const [name, setName] = useState<string>(existingCharity ? existingCharity.name : "")
+    const [briefDesc, setBriefDesc] = useState<string>(existingCharity ? existingCharity.briefDescription : "")
+    const [fullDesc, setFullDesc] = useState<string>(existingCharity ? existingCharity.fullName : "")
+    const [social, setSocial] = useState<string>(existingCharity ? existingCharity.url ? existingCharity.url : "" : "")
+    const [checkedTagsCount, setCheckedTagsCount] = useState(existingCharity ? existingCharity.tags.length : 0)
+    const [fullName, setFullName] = useState<string>(existingCharity ? existingCharity.fullName : "")
+    const [ogrn, setOgrn] = useState<string>(existingCharity ? existingCharity.ogrn : "")
+    const [egrul, setEgrul] = useState<string>(existingCharity ? existingCharity.egrul : "")
+    const [managerContact, setManagerContact] = useState<string>(existingCharity ? existingCharity.managerContact : "")
+    const [selectedAddress, setSelectedAddress] = useState<string | undefined>(existingCharity ? existingCharity.address ? existingCharity.address : undefined : undefined);
+    const [selectedCoords, setSelectedCoords] = useState<LocationModel | undefined>(existingCharity ? existingCharity.location ? existingCharity.location : undefined : undefined);
 
     const ref = useRef<typeof TagSelect>()
     const screenHeight = useSafeAreaFrame().height;
@@ -114,13 +116,19 @@ export default function CharityCreationScreen() {
             url: social
         }
         try {
-            await dispatch(createCharity(charity)).unwrap()
+            if (existingCharity) {
+                charity.id = existingCharity.id
+                await dispatch(editCharity(charity)).unwrap()
+            } else {
+                await dispatch(createCharity(charity)).unwrap()
+            }
             nav.pop()
         } catch (e) {
             const error = e as AxiosError
             if (error.isAxiosError) {
 
             }
+            console.log(error)
             Toast.show("Не удалось оствить заявку", Toast.LONG)
         }
     }
@@ -128,7 +136,7 @@ export default function CharityCreationScreen() {
     return <ScrollView>
 
         <Spinner
-            visible={state.creationLoading}
+            visible={state.editLoading}
             textContent={'Создание заявки...'}
             textStyle={{color: "white"}}
         />
@@ -141,6 +149,7 @@ export default function CharityCreationScreen() {
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                 placeholder={"Краткое название"}
                 autoCorrect={false}
+                value={name}
                 onChangeText={(text) => setName(text)}
             />
             <TextInput multiline={true}
@@ -152,6 +161,7 @@ export default function CharityCreationScreen() {
                            marginVertical: marginVertical
                        }]}
                        maxLength={1500}
+                       value={briefDesc}
                        onChangeText={(text) => setBriefDesc(text)}
                        placeholder={"Краткое описание"}/>
             <TextInput multiline={true}
@@ -161,7 +171,7 @@ export default function CharityCreationScreen() {
                            paddingTop: 2,
                            marginVertical: marginVertical
                        }]}
-                       maxLength={1500}
+                       value={fullDesc}
                        onChangeText={(text) => setFullDesc(text)}
                        placeholder={"Полное описание"}/>
             <View style={{
@@ -174,6 +184,7 @@ export default function CharityCreationScreen() {
                 <TextInput
                     style={{...styles.textInput, flex: 1, height: "100%"}}
                     placeholder={"Сайт или аккаунт в соц. сети"}
+                    value={social}
                     autoCorrect={false}
                     onChangeText={(text) => setSocial(text)}
                 />
@@ -185,7 +196,7 @@ export default function CharityCreationScreen() {
                 marginVertical: marginVertical
             }}>
                 <SvgXml xml={iconGeo} style={{marginRight: "1%"}}/>
-                <Pressable style={{flex: 1, height: "100%"}} onPress={selectLocation}>
+                <Pressable style={{flex: 1, height: "100%"}} onPress={() => {selectLocation()}}>
                     <TextInput
                         style={{...styles.textInput, flex: 1, height: "100%", marginVertical: 0, color: "black"}}
                         placeholder={"Адрес (необязательно)"}
@@ -201,6 +212,7 @@ export default function CharityCreationScreen() {
             </Text>
             <View style={{marginVertical: marginVertical}}>
                 <TagSelect
+                    value={existingCharity ? existingCharity.tags : undefined}
                     data={resources.tags}
                     max={5}
                     ref={ref}
@@ -217,24 +229,28 @@ export default function CharityCreationScreen() {
             <Text style={[styles.title, {marginVertical: marginVertical}]}>Для регистрации на платформе</Text>
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
+                value={fullName}
                 placeholder={"Полное название"}
                 autoCorrect={false}
                 onChangeText={(text) => setFullName(text)}
             />
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
+                value={ogrn}
                 placeholder={"ОГРН"}
                 autoCorrect={false}
                 onChangeText={(text) => setOgrn(text)}
             />
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
+                value={egrul}
                 placeholder={"ЕГРЮЛ"}
                 autoCorrect={false}
                 onChangeText={(text) => setEgrul(text)}
             />
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
+                value={managerContact}
                 placeholder={"Ваш контакт для связи"}
                 autoCorrect={false}
                 onChangeText={(text) => setManagerContact(text)}

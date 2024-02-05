@@ -1,4 +1,4 @@
-import {createStackNavigator} from "@react-navigation/stack";
+import {createStackNavigator, StackScreenProps} from "@react-navigation/stack";
 import AuthScreen from "./ui/auth/screens/AuthScreen"
 import {getFocusedRouteNameFromRoute, NavigationContainer} from "@react-navigation/native";
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
@@ -12,6 +12,7 @@ import {iconHome} from "./assets/iconHome";
 import {iconProfile} from "./assets/iconProfile";
 import CharityCreationScreen from "./ui/charity/screens/CharityCreationScreen";
 import React from "react";
+import {CharityModel} from "./data/model/СharityModel";
 
 const commonOptions = {
     headerShown: false,
@@ -69,7 +70,16 @@ const ProfileStackNavigator = () => {
     </ProfileStack.Navigator>
 }
 
-const OrganizationsStack = createStackNavigator()
+type OrganizationsStackParamList = {
+    AllOrganizations: undefined,
+    CreateCharity: {
+        charity?: CharityModel
+    }
+}
+
+export type CreateCharityProps = StackScreenProps<OrganizationsStackParamList, 'CreateCharity'>;
+
+const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
 // @ts-ignore
 const OrganizationsStackNavigator = ({ navigation, route }) => {
