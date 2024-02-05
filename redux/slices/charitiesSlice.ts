@@ -9,8 +9,13 @@ export const getCharities = createAsyncThunk('charities/getCharities', async () 
 })
 
 export const createCharity = createAsyncThunk('charities/createCharity', async (charity: CharityModel) => {
-    // return await axios.post("")
-    return charity
+    const response = await axios.post<{message: string, charityId: string}>("https://us-central1-donapp-d2378.cloudfunctions.net/createCharity", {charity: charity}, {
+        headers: {
+            Authorization: await auth.currentUser!!.getIdToken()
+        }
+    })
+
+    return {...charity, id: response.data.charityId}
 })
 
 interface initialStateType {

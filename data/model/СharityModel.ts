@@ -1,6 +1,7 @@
 import {TagModel} from "./TagModel";
 
 export interface CharityModel {
+    id?: string | undefined,
     address?: string | null;
     briefDescription: string;
     campaigns: string[];
