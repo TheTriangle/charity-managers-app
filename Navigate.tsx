@@ -13,6 +13,7 @@ import {iconProfile} from "./assets/iconProfile";
 import CharityCreationScreen from "./ui/charity/screens/CharityCreationScreen";
 import React from "react";
 import {CharityModel} from "./data/model/СharityModel";
+import CharityScreen from "./ui/charity/screens/CharityScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -62,6 +63,10 @@ const creationOptions = {
     ...commonOptions,
 }
 
+const charityOptions = {
+    ...commonOptions,
+}
+
 const ProfileStack = createStackNavigator()
 
 const ProfileStackNavigator = () => {
@@ -74,10 +79,15 @@ type OrganizationsStackParamList = {
     AllOrganizations: undefined,
     CreateCharity: {
         charity?: CharityModel
+    },
+    Charity: {
+        charity: CharityModel
     }
 }
 
 export type CreateCharityProps = StackScreenProps<OrganizationsStackParamList, 'CreateCharity'>;
+
+export type CharityProps = StackScreenProps<OrganizationsStackParamList, 'Charity'>;
 
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
@@ -95,6 +105,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
     return <OrganizationsStack.Navigator>
         <OrganizationsStack.Screen name={"AllOrganizations"} component={OrganizationsScreen} options={organizationsOptions}/>
         <OrganizationsStack.Screen name={"CreateCharity"} component={CharityCreationScreen} options={creationOptions}/>
+        <OrganizationsStack.Screen name={"Charity"} component={CharityScreen} options={charityOptions}/>
     </OrganizationsStack.Navigator>
 }
 

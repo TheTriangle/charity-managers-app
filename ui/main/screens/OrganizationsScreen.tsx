@@ -56,6 +56,7 @@ export default function OrganizationsScreen() {
                                                   renderItem={(item => {
                                                       return <CharityListItem charity={item.item}
                                                                               onPress={(charity) => {
+                                                                                  nav.navigate("Charity", {charity: charity})
                                                                               }}/>
                                                   })}
                                                   ItemSeparatorComponent={() => <View style={{height: 20}}/>}
