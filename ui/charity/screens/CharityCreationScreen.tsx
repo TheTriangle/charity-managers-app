@@ -40,7 +40,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
     const [selected, setSelected] = useState<number[]>(existingCharity ? existingCharity.organization ? [2] : [1] : [1])
     const [name, setName] = useState<string>(existingCharity ? existingCharity.name : "")
     const [briefDesc, setBriefDesc] = useState<string>(existingCharity ? existingCharity.briefDescription : "")
-    const [fullDesc, setFullDesc] = useState<string>(existingCharity ? existingCharity.fullName : "")
+    const [fullDesc, setFullDesc] = useState<string>(existingCharity ? existingCharity.description : "")
     const [social, setSocial] = useState<string>(existingCharity ? existingCharity.url ? existingCharity.url : "" : "")
     const [checkedTagsCount, setCheckedTagsCount] = useState(existingCharity ? existingCharity.tags.length : 0)
     const [fullName, setFullName] = useState<string>(existingCharity ? existingCharity.fullName : "")
@@ -160,7 +160,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                            paddingTop: 2,
                            marginVertical: marginVertical
                        }]}
-                       maxLength={1500}
+                       maxLength={300}
                        value={briefDesc}
                        onChangeText={(text) => setBriefDesc(text)}
                        placeholder={"Краткое описание"}/>
