@@ -14,6 +14,7 @@ import CharityCreationScreen from "./ui/charity/screens/CharityCreationScreen";
 import React from "react";
 import {CharityModel} from "./data/model/СharityModel";
 import CharityScreen from "./ui/charity/screens/CharityScreen";
+import CharityEditScreen from "./ui/charity/screens/CharityEditScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -67,6 +68,10 @@ const charityOptions = {
     ...commonOptions,
 }
 
+const charityEditOptions = {
+    ...commonOptions,
+}
+
 const ProfileStack = createStackNavigator()
 
 const ProfileStackNavigator = () => {
@@ -81,7 +86,10 @@ type OrganizationsStackParamList = {
         charity?: CharityModel
     },
     Charity: {
-        charity: CharityModel
+        charityID: string
+    },
+    CharityEdit: {
+        charityID: string
     }
 }
 
@@ -89,11 +97,13 @@ export type CreateCharityProps = StackScreenProps<OrganizationsStackParamList, '
 
 export type CharityProps = StackScreenProps<OrganizationsStackParamList, 'Charity'>;
 
+export type CharityEditProps = StackScreenProps<OrganizationsStackParamList, 'CharityEdit'>;
+
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
 // @ts-ignore
 const OrganizationsStackNavigator = ({ navigation, route }) => {
-    const tabHiddenRoutes = ["CreateCharity"];
+    const tabHiddenRoutes = ["CreateCharity", "CharityEdit"];
     React.useLayoutEffect(() => {
         // const routeName = getFocusedRouteNameFromRoute(route);
         if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route) as string)){
@@ -106,6 +116,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
         <OrganizationsStack.Screen name={"AllOrganizations"} component={OrganizationsScreen} options={organizationsOptions}/>
         <OrganizationsStack.Screen name={"CreateCharity"} component={CharityCreationScreen} options={creationOptions}/>
         <OrganizationsStack.Screen name={"Charity"} component={CharityScreen} options={charityOptions}/>
+        <OrganizationsStack.Screen name={"CharityEdit"} component={CharityEditScreen} options={charityEditOptions}/>
     </OrganizationsStack.Navigator>
 }
 
