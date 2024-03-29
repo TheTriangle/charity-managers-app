@@ -4,6 +4,7 @@ import firebase from "firebase/compat";
 import NetInfo from "@react-native-community/netinfo";
 import {CharityModel} from "../model/СharityModel";
 import firestore = firebase.firestore;
+import {TagModel} from "../model/TagModel";
 
 export const userExists = async (
     email: string,
@@ -49,10 +50,29 @@ export const fillManagerData = async (managerData: {
 }
 
 export const getAllCharities = async (uid: string) => {
+
     const docs = await firestore().collection("charities").where("creatorid", "==", uid).get()
     if (!docs.empty) {
         return docs.docs.map(value => value.data() as CharityModel)
     } else {
         return []
+    }
+}
+
+export const updateConfirmedCharity = async (data: {
+    id: string
+    address: string | undefined,
+    briefDescription: string,
+    description: string,
+    location: LocationModel | undefined,
+    managerContact: string,
+    tags: TagModel[],
+    url: string
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        await firestore().collection("charities").doc(data.id).update(data)
+    } else {
+        throw Error("No internet connection")
     }
 }

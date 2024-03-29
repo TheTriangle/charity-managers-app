@@ -1,15 +1,19 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {CharityModel} from "../../data/model/СharityModel";
-import {getAllCharities} from "../../data/repo/repository";
+import {getAllCharities, updateConfirmedCharity} from "../../data/repo/repository";
 import {auth} from "../../firebase/config";
 import axios from "axios";
+import {TagModel} from "../../data/model/TagModel";
 
 export const getCharities = createAsyncThunk('charities/getCharities', async () => {
     return await getAllCharities(auth.currentUser!!.uid)
 })
 
 export const createCharity = createAsyncThunk('charities/createCharity', async (charity: CharityModel) => {
-    const response = await axios.post<{message: string, charityId: string}>("https://us-central1-donapp-d2378.cloudfunctions.net/createCharity", {charity: charity}, {
+    const response = await axios.post<{
+        message: string,
+        charityId: string
+    }>("https://us-central1-donapp-d2378.cloudfunctions.net/createCharity", {charity: charity}, {
         headers: {
             Authorization: await auth.currentUser!!.getIdToken()
         }
@@ -18,12 +22,29 @@ export const createCharity = createAsyncThunk('charities/createCharity', async (
 })
 
 export const editCharity = createAsyncThunk('charities/editCharity', async (charity: CharityModel) => {
-    await axios.post<{message: string, charityId: string}>("https://us-central1-donapp-d2378.cloudfunctions.net/updateCharity ", {charity: charity}, {
+    await axios.post<{
+        message: string,
+        charityId: string
+    }>("https://us-central1-donapp-d2378.cloudfunctions.net/updateCharity ", {charity: charity}, {
         headers: {
             Authorization: await auth.currentUser!!.getIdToken()
         }
     })
     return charity
+})
+
+export const editConfirmedCharity = createAsyncThunk('charities/editConfirmedCharity', async (data: {
+    id: string
+    address: string | undefined,
+    briefDescription: string,
+    description: string,
+    location: LocationModel | undefined,
+    managerContact: string,
+    tags: TagModel[],
+    url: string
+}) => {
+    await updateConfirmedCharity(data)
+    return data
 })
 
 interface initialStateType {
@@ -88,6 +109,20 @@ const profileSlice = createSlice({
                 state.unconfirmedCharities[index] = action.payload
             })
             .addCase(editCharity.rejected, (state, action) => {
+                state.editLoading = false
+                state.editError = action.error.message ? action.error.message : ""
+            })
+
+            .addCase(editConfirmedCharity.pending, state => {
+                state.editLoading = true
+                state.editError = null
+            })
+            .addCase(editConfirmedCharity.fulfilled, (state, action) => {
+                state.editLoading = false
+                const index = state.confirmedCharities.findIndex((charity) => charity.id === action.payload.id)
+                state.confirmedCharities[index] = {...state.confirmedCharities[index], ...action.payload}
+            })
+            .addCase(editConfirmedCharity.rejected, (state, action) => {
                 state.editLoading = false
                 state.editError = action.error.message ? action.error.message : ""
             })

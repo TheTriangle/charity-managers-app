@@ -7,7 +7,6 @@ import {
     View,
 } from "react-native";
 import React, {useRef, useState} from "react";
-import ButtonRow from "../../profile/components/ButtonRow";
 import {textInput} from "../../../styles/styles";
 import {SvgXml} from "react-native-svg";
 import {iconSocial} from "../../../assets/iconSocial";
@@ -21,34 +20,26 @@ import Button from "../../utils/Button";
 import {useSafeAreaFrame} from "react-native-safe-area-context";
 import {pickPlace} from 'react-native-place-picker';
 import {PlacePickerResults} from "react-native-place-picker/src/interfaces";
-import {CharityModel} from "../../../data/model/СharityModel";
-import {auth} from "../../../firebase/config";
 import {useAppDispatch} from "../../../hooks";
-import {createCharity, editCharity} from "../../../redux/slices/charitiesSlice";
-import Toast from "react-native-simple-toast";
-import {AxiosError} from "axios";
 import Spinner from "react-native-loading-spinner-overlay";
-import {CreateCharityProps} from "../../../Navigate";
-
-
+import {CharityEditProps} from "../../../Navigate";
+import {editConfirmedCharity} from "../../../redux/slices/charitiesSlice";
+import {isFirebaseError} from "../../../utils/isFirebaseError";
+import Toast from "react-native-simple-toast";
 const reactNativeTagSelect = require("react-native-tag-select")
 const TagSelect = reactNativeTagSelect.TagSelect
 
-export default function CharityCreationScreen({route: {params: {charity: existingCharity}}}: CreateCharityProps) {
+export default function CharityEditScreen({route: {params: {charityID}}}: CharityEditProps) {
+    const state = useSelector(selectCharitiesState)
+    const charity = state.confirmedCharities.find(charity => charity.id == charityID)!!
 
-    const btns = [{id: 1, title: "Частный сбор"}, {id: 2, title: "НКО"}]
-    const [selected, setSelected] = useState<number[]>(existingCharity ? existingCharity.organization ? [2] : [1] : [1])
-    const [name, setName] = useState<string>(existingCharity ? existingCharity.name : "")
-    const [briefDesc, setBriefDesc] = useState<string>(existingCharity ? existingCharity.briefDescription : "")
-    const [fullDesc, setFullDesc] = useState<string>(existingCharity ? existingCharity.description : "")
-    const [social, setSocial] = useState<string>(existingCharity ? existingCharity.url ? existingCharity.url : "" : "")
-    const [checkedTagsCount, setCheckedTagsCount] = useState(existingCharity ? existingCharity.tags.length : 0)
-    const [fullName, setFullName] = useState<string>(existingCharity ? existingCharity.fullName : "")
-    const [ogrn, setOgrn] = useState<string>(existingCharity ? existingCharity.ogrn : "")
-    const [egrul, setEgrul] = useState<string>(existingCharity ? existingCharity.egrul : "")
-    const [managerContact, setManagerContact] = useState<string>(existingCharity ? existingCharity.managerContact : "")
-    const [selectedAddress, setSelectedAddress] = useState<string | undefined>(existingCharity ? existingCharity.address ? existingCharity.address : undefined : undefined);
-    const [selectedCoords, setSelectedCoords] = useState<LocationModel | undefined>(existingCharity ? existingCharity.location ? existingCharity.location : undefined : undefined);
+    const [briefDesc, setBriefDesc] = useState<string>(charity ? charity.briefDescription : "")
+    const [fullDesc, setFullDesc] = useState<string>(charity ? charity.description : "")
+    const [social, setSocial] = useState<string>(charity ? charity.url ? charity.url : "" : "")
+    const [checkedTagsCount, setCheckedTagsCount] = useState(charity ? charity.tags.length : 0)
+    const [managerContact, setManagerContact] = useState<string>(charity ? charity.managerContact : "")
+    const [selectedAddress, setSelectedAddress] = useState<string | undefined>(charity ? charity.address ? charity.address : undefined : undefined);
+    const [selectedCoords, setSelectedCoords] = useState<LocationModel | undefined>(charity ? charity.location ? charity.location : undefined : undefined);
 
     const ref = useRef<typeof TagSelect>()
     const screenHeight = useSafeAreaFrame().height;
@@ -56,7 +47,6 @@ export default function CharityCreationScreen({route: {params: {charity: existin
     const marginVertical = screenHeight * 0.01
 
     const dispatch = useAppDispatch()
-    const state = useSelector(selectCharitiesState)
     const nav = useNavigation<any>()
 
     const getSelectedTags = () => {
@@ -64,9 +54,6 @@ export default function CharityCreationScreen({route: {params: {charity: existin
     }
 
     const resources = useSelector(selectResourceState)
-    const handleButtonPress = (buttonId: number) => {
-        setSelected([buttonId])
-    };
 
     const selectLocation = () => {
         pickPlace({
@@ -85,73 +72,45 @@ export default function CharityCreationScreen({route: {params: {charity: existin
     }
 
     const formValid = () => {
-        return name.length != 0 &&
-            briefDesc.length != 0 &&
+        return briefDesc.length != 0 &&
             fullDesc.length != 0 &&
             social.length != 0 &&
             checkedTagsCount != 0 &&
-            fullName.length != 0 &&
-            ogrn.length != 0 &&
-            egrul.length != 0 &&
             managerContact.length != 0
     }
 
-    const requestCreateCharity = async () => {
-        const charity: CharityModel = {
+    const editCharity = async () => {
+        const charity = {
+            id: charityID,
             address: selectedAddress,
             briefDescription: briefDesc,
-            campaigns: [],
-            confirmed: false,
-            creatorid: auth.currentUser!!.uid,
             description: fullDesc,
-            egrul: egrul,
-            fullName: fullName,
             location: selectedCoords,
             managerContact: managerContact,
-            name: name,
-            ogrn: ogrn,
-            organization: selected[0] == 2,
-            photourl: undefined,
             tags: getSelectedTags(),
             url: social
         }
         try {
-            if (existingCharity) {
-                charity.id = existingCharity.id
-                await dispatch(editCharity(charity)).unwrap()
-            } else {
-                await dispatch(createCharity(charity)).unwrap()
-            }
+            await dispatch(editConfirmedCharity(charity)).unwrap()
             nav.pop()
         } catch (e) {
-            const error = e as AxiosError
-            if (error.isAxiosError) {
-
+            if (isFirebaseError(e)) {
+                console.log(e.message)
             }
-            console.log(error)
-            Toast.show("Не удалось оствить заявку", Toast.LONG)
+            Toast.show("Не удалось отредактировать данные", Toast.LONG)
         }
     }
 
     return <ScrollView>
-
         <Spinner
             visible={state.editLoading}
-            textContent={'Создание заявки...'}
+            textContent={'Редактирование...'}
             textStyle={{color: "white"}}
         />
         <View style={styles.container}>
-            <Text style={[styles.header]}>Информация об организации</Text>
-            <ButtonRow data={btns} onPress={handleButtonPress} selected={selected}
-                       buttonContainerStyle={{width: "40%", alignItems: "center"}}/>
-            <Text style={[styles.title, {marginVertical}]}>Для благотворителей</Text>
-            <TextInput
-                style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                placeholder={"Краткое название"}
-                autoCorrect={false}
-                value={name}
-                onChangeText={(text) => setName(text)}
-            />
+            <Text style={[styles.header]}>Видят благотворители</Text>
+            <Text style={[styles.title, {marginVertical}]}>Краткое описание</Text>
+
             <TextInput multiline={true}
                        numberOfLines={15}
                        style={[styles.textInput, {
@@ -164,6 +123,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                        value={briefDesc}
                        onChangeText={(text) => setBriefDesc(text)}
                        placeholder={"Краткое описание"}/>
+            <Text style={[styles.title, {marginVertical}]}>Полное описание</Text>
             <TextInput multiline={true}
                        style={[styles.textInput, {
                            height: screenHeight * 0.22,
@@ -174,6 +134,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                        value={fullDesc}
                        onChangeText={(text) => setFullDesc(text)}
                        placeholder={"Полное описание"}/>
+            <Text style={[styles.title, {marginVertical}]}>Сайт или соц. сеть</Text>
             <View style={{
                 flexDirection: "row",
                 height: textInputHeight,
@@ -189,6 +150,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                     onChangeText={(text) => setSocial(text)}
                 />
             </View>
+            <Text style={[styles.title, {marginVertical}]}>Адрес</Text>
             <View style={{
                 flexDirection: "row",
                 height: textInputHeight,
@@ -196,7 +158,9 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                 marginVertical: marginVertical
             }}>
                 <SvgXml xml={iconGeo} style={{marginRight: "1%"}}/>
-                <Pressable style={{flex: 1, height: "100%"}} onPress={() => {selectLocation()}}>
+                <Pressable style={{flex: 1, height: "100%"}} onPress={() => {
+                    selectLocation()
+                }}>
                     <TextInput
                         style={{...styles.textInput, flex: 1, height: "100%", marginVertical: 0, color: "black"}}
                         placeholder={"Адрес (необязательно)"}
@@ -212,7 +176,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
             </Text>
             <View style={{marginVertical: marginVertical}}>
                 <TagSelect
-                    value={existingCharity ? existingCharity.tags : undefined}
+                    value={charity ? charity.tags : undefined}
                     data={resources.tags}
                     max={5}
                     ref={ref}
@@ -226,28 +190,8 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                     }}
                 />
             </View>
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Для регистрации на платформе</Text>
-            <TextInput
-                style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                value={fullName}
-                placeholder={"Полное название"}
-                autoCorrect={false}
-                onChangeText={(text) => setFullName(text)}
-            />
-            <TextInput
-                style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                value={ogrn}
-                placeholder={"ОГРН"}
-                autoCorrect={false}
-                onChangeText={(text) => setOgrn(text)}
-            />
-            <TextInput
-                style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                value={egrul}
-                placeholder={"ЕГРЮЛ"}
-                autoCorrect={false}
-                onChangeText={(text) => setEgrul(text)}
-            />
+            <Text style={[styles.header]}>Видит только модератор</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Контакты</Text>
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                 value={managerContact}
@@ -255,7 +199,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                 autoCorrect={false}
                 onChangeText={(text) => setManagerContact(text)}
             />
-            <Button containerStyle={{marginVertical: marginVertical}} onPress={requestCreateCharity} text={"Готово"}
+            <Button containerStyle={{marginVertical: marginVertical}} onPress={editCharity} text={"Готово"}
                     active={formValid()}
             />
         </View>
