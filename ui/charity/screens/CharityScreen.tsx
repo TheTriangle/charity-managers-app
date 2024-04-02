@@ -22,7 +22,7 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
 
     return <View style={styles.container}>
         <TitleCard containerStyle={{marginBottom: 20}} title={charity.name} desc={charity.description} tags={charity.tags} options={["Редактировать", "Удалить", "Отмена"]} actions={[onEditClick]}/>
-        <Button onPress={undefined} text={"Открыть сбор"}/>
+        <Button onPress={() => nav.navigate("CreateCampaign", {charityID: charityID})} text={"Открыть сбор"}/>
     </View>
 
 }

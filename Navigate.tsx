@@ -15,6 +15,7 @@ import React from "react";
 import {CharityModel} from "./data/model/СharityModel";
 import CharityScreen from "./ui/charity/screens/CharityScreen";
 import CharityEditScreen from "./ui/charity/screens/CharityEditScreen";
+import CampaignCreationScreen from "./ui/campaign/screens/CampaignCreationScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -72,6 +73,10 @@ const charityEditOptions = {
     ...commonOptions,
 }
 
+const campaignCreationOptions = {
+    ...commonOptions,
+}
+
 const ProfileStack = createStackNavigator()
 
 const ProfileStackNavigator = () => {
@@ -90,6 +95,9 @@ type OrganizationsStackParamList = {
     },
     CharityEdit: {
         charityID: string
+    },
+    CreateCampaign: {
+        charityID: string
     }
 }
 
@@ -98,6 +106,8 @@ export type CreateCharityProps = StackScreenProps<OrganizationsStackParamList, '
 export type CharityProps = StackScreenProps<OrganizationsStackParamList, 'Charity'>;
 
 export type CharityEditProps = StackScreenProps<OrganizationsStackParamList, 'CharityEdit'>;
+
+export type CampaignCreationProps = StackScreenProps<OrganizationsStackParamList, 'CreateCampaign'>;
 
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
@@ -117,6 +127,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
         <OrganizationsStack.Screen name={"CreateCharity"} component={CharityCreationScreen} options={creationOptions}/>
         <OrganizationsStack.Screen name={"Charity"} component={CharityScreen} options={charityOptions}/>
         <OrganizationsStack.Screen name={"CharityEdit"} component={CharityEditScreen} options={charityEditOptions}/>
+        <OrganizationsStack.Screen name={"CreateCampaign"} component={CampaignCreationScreen} options={campaignCreationOptions}/>
     </OrganizationsStack.Navigator>
 }
 

@@ -9,3 +9,5 @@ export const PRIMARY_COLOR = "#67AB8D"
 export const BUTTON_ACTIVE_COLOR= "#3C91E6"
 
 export const BUTTON_INACTIVE_COLOR= "rgba(60,145,230,0.5)"
+
+export const HYPERLINK_BLUE = "#3C91E6"

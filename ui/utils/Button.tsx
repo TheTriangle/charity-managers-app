@@ -1,6 +1,7 @@
 import {BUTTON_ACTIVE_COLOR, BUTTON_INACTIVE_COLOR} from "../../styles/colors";
-import {Pressable, StyleSheet, Text, TextStyle, ViewStyle} from "react-native";
+import {Pressable, StyleSheet, Text, TextStyle, View, ViewStyle} from "react-native";
 import React from "react";
+import {TouchableOpacity} from "react-native-gesture-handler";
 
 export default function Button({onPress, text, containerStyle, textStyle, active = true}: {
     onPress: (() => void) | undefined,
@@ -9,11 +10,14 @@ export default function Button({onPress, text, containerStyle, textStyle, active
     textStyle?: TextStyle,
     active?: boolean
 }) {
-    return <Pressable style={[styles.buttonContainer, containerStyle, !active && {backgroundColor: BUTTON_INACTIVE_COLOR}]}
-                      onPress={active ? onPress : undefined}
-    >
-        <Text style={[styles.buttonText, textStyle]}>{text}</Text>
-    </Pressable>
+    return <View style={{alignSelf: "center"}}>
+        <TouchableOpacity style={[styles.buttonContainer, containerStyle, !active && {backgroundColor: BUTTON_INACTIVE_COLOR}]}
+                          onPress={active ? onPress : undefined}
+        >
+            <Text style={[styles.buttonText, textStyle]}>{text}</Text>
+        </TouchableOpacity>
+    </View>
+
 }
 
 const styles = StyleSheet.create({
