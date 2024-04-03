@@ -4,7 +4,8 @@ import {
     StyleSheet,
     Text,
     TextInput,
-    View,
+    Button as ReactButton,
+    View, Linking,
 } from "react-native";
 import React, {useRef, useState} from "react";
 import {hyperlink, textInput} from "../../../styles/styles";
@@ -29,6 +30,8 @@ import Toast from "react-native-simple-toast";
 import {iconCopy} from "../../../assets/iconCopy";
 import {iconRouble} from "../../../assets/iconRouble";
 import DatePicker from "react-native-date-picker";
+import * as Clipboard from 'expo-clipboard';
+import Modal from "react-native-modal/dist/modal";
 
 const reactNativeTagSelect = require("react-native-tag-select")
 const TagSelect = reactNativeTagSelect.TagSelect
@@ -37,22 +40,24 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
     const state = useSelector(selectCharitiesState)
     const charity = state.confirmedCharities.find(charity => charity.id == charityID)!!
     const currentDate = new Date()
-    const formatter = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
 
     const [briefDesc, setBriefDesc] = useState<string>(charity ? charity.briefDescription : "")
     const [fullDesc, setFullDesc] = useState<string>(charity ? charity.description : "")
     const [social, setSocial] = useState<string>(charity ? charity.url ? charity.url : "" : "")
     const [checkedTagsCount, setCheckedTagsCount] = useState(charity ? charity.tags.length : 0)
     const [managerContact, setManagerContact] = useState<string>(charity ? charity.managerContact : "")
+    const [title, setTitle] = useState("")
     const [paymentAccount, setPaymentAccount] = useState<string>("")
     const [secretKey, setSecretKey] = useState<string>("")
     const [date, setDate] = useState<Date | null>(null)
     const [datePickerOpen, setDatePickerOpen] = useState(false)
     const [amount, setAmount] = useState("")
+    const [showModal, setShowModal] = useState(false)
 
     const ref = useRef<typeof TagSelect>()
     const screenHeight = useSafeAreaFrame().height;
-    const textInputHeight = screenHeight * 0.05
+    const textInputHeight = screenHeight * 0.04
     const marginVertical = screenHeight * 0.01
 
     const dispatch = useAppDispatch()
@@ -64,6 +69,10 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
     const resources = useSelector(selectResourceState)
 
+    const copyToClipboard = async (text: string) => {
+        await Clipboard.setStringAsync(text);
+        Toast.show("Ссылка скопирована", Toast.SHORT)
+    };
 
     const formValid = () => {
         return briefDesc.length != 0 &&
@@ -82,7 +91,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
     // TODO: Интерфейс для заголовочного поста эндпоинт для проверки пожретвования
 
 
-    return <>
+    return <ScrollView>
         <Spinner
             visible={state.editLoading}
             textContent={'Создание...'}
@@ -105,14 +114,41 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             }}
         />
 
+        <Modal isVisible={showModal} onBackButtonPress={() => setShowModal(false)}
+               onBackdropPress={() => setShowModal(false)}>
+            <View style={{
+                alignSelf: "center",
+                justifyContent: "center",
+                backgroundColor: "white",
+                padding: 15,
+                borderRadius: 10
+            }}>
+                <Text>1. Зарегистрируйте кошелек на <Text style={hyperlink}
+                                                          onPress={() => Linking.openURL("https://yoomoney.ru/")}>https://yoomoney.ru/</Text> {"\n"}
+                    2. Скопируйте номер кошелька из личного кабинета по адресу <Text style={hyperlink}
+                                                                                     onPress={() => Linking.openURL("https://yoomoney.ru/settings")}>https://yoomoney.ru/settings</Text>{"\n"}
+                    3. Введите номер кошелька в поле ниже{"\n"}
+                    4. Перейдите на страницу <Text style={hyperlink}
+                                                   onPress={() => Linking.openURL("https://yoomoney.ru/transfer/myservices/http-notification")}>https://yoomoney.ru/transfer/myservices/http-notification</Text> и
+                    скопируйте
+                    секретный ключ для проверки подлинности(он используется только для валидации уведомлений){"\n"}
+                    5. Вставьте секретный ключ в поле "Секрет" в приложении и нажмите отправить{"\n"}
+                    6. Скопируйте url из раздела "Обновление данных о сборе"{"\n"}
+                    7. Вставьте url в поле "Куда отправлять" на той же странице ЮMoney и нажмите
+                    "Протестировать"{"\n"}
+                    8. Нажмите на кнопку "Проверить" в приложении</Text>
+            </View>
+        </Modal>
         <View style={styles.container}>
-            <Text style={[styles.title, {marginVertical: "1%"}]}>Номер кошелька ЮMoney</Text>
+            <Text style={styles.header}>Платежные данные</Text>
 
-            <Button onPress={undefined} text={"Как найти?"}
-                    containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}} textStyle={{fontSize: 14}}/>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Номер кошелька ЮMoney</Text>
+
+            <Button onPress={() => setShowModal(true)} text={"Как заполнить?"}
+                    containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}} textStyle={{fontSize: 14, paddingHorizontal:"10%"}}/>
 
             <TextInput
-                style={{...styles.textInput, height: "4%"}}
+                style={{...styles.textInput, height: textInputHeight}}
                 placeholder={"Кошелек"}
                 autoCorrect={false}
                 keyboardType={"numeric"}
@@ -137,32 +173,38 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                     }}
                 />
             </View>
-            <Text style={[styles.title, {marginVertical: "1%"}]}>Обновление данных о сборе</Text>
-            <Text style={{marginVertical: "1%"}}>В разделе HTTP-Уведомления укажите следующий url и нажмите
-                “протестировать”:</Text>
-            <View style={{flexDirection: "row", justifyContent: "space-between", width: "100%"}}>
-                <Text style={hyperlink}>donapp-d2378.web.app/12315231/callback</Text>
-                {/*TODO: onclick to clipboard*/}
-                <SvgXml xml={iconCopy}/>
-            </View>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Обновление данных о сборе</Text>
 
-            <Text style={{marginVertical: "1%"}}>Вставьте ваш секретный ключ в поле ниже:</Text>
+            <Text style={{marginVertical: marginVertical}}>Вставьте ваш секретный ключ в поле ниже:</Text>
 
             <TextInput
-                style={{...styles.textInput, height: "4%"}}
+                style={{...styles.textInput, height: textInputHeight}}
                 placeholder={"Секрет"}
                 autoCorrect={false}
-                keyboardType={"numeric"}
                 onChangeText={(text) => setSecretKey(text)}
             />
+
+            <Button onPress={undefined} text={"Отправить"}
+                    containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}}
+                    textStyle={{fontSize: 14, paddingHorizontal: "10%"}}/>
+
+            <Text style={{marginVertical: marginVertical}}>В разделе HTTP-Уведомления укажите следующий url и нажмите
+                “протестировать”:</Text>
+            <View style={{flexDirection: "row", justifyContent: "space-between", width: "100%", marginBottom: marginVertical}}>
+                <Text style={hyperlink}
+                      onPress={() => copyToClipboard("donapp-d2378.web.app/12315231/callback")}>donapp-d2378.web.app/12315231/callback</Text>
+                <SvgXml xml={iconCopy} onPress={() => copyToClipboard("donapp-d2378.web.app/12315231/callback")}/>
+            </View>
 
             <Button onPress={undefined} text={"Проверить"}
                     containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}}
                     textStyle={{fontSize: 14, paddingHorizontal: "10%"}}/>
 
-            <Text style={[styles.title, {marginVertical: "1%"}]}>Ограничение по времени</Text>
 
-            <Pressable style={{height: "4%", width: "100%", marginBottom: "2%"}} onPress={() => setDatePickerOpen(true)}>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Ограничение по времени</Text>
+
+            <Pressable style={{height: textInputHeight, width: "100%", marginBottom: marginVertical * 2}}
+                       onPress={() => setDatePickerOpen(true)}>
                 <TextInput
                     style={{...styles.textInput, height: "100%", color: "black"}}
                     placeholder={"дд/мм/гггг"}
@@ -173,9 +215,9 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             </Pressable>
 
 
-            <Text style={[styles.title, {marginVertical: "1%"}]}>Необходимая сумма</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Необходимая сумма</Text>
 
-            <View style={{width: "100%", height: "4%"}}>
+            <View style={{width: "100%", height: textInputHeight}}>
                 <TextInput
                     style={{...styles.textInput, height: "100%"}}
                     placeholder={"Сумма"}
@@ -187,8 +229,31 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                 <SvgXml xml={iconRouble} style={{position: "absolute", right: "2%", top: "45%"}}/>
             </View>
 
+            <Text style={[styles.header, {marginVertical: marginVertical, marginTop: marginVertical * 2}]}>Главная запись</Text>
+
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Название</Text>
+
+            <TextInput
+                style={{...styles.textInput, height: textInputHeight}}
+                placeholder={"Название"}
+                autoCorrect={false}
+                onChangeText={(text) => setTitle(text)}
+            />
+
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Описание</Text>
+
+            <TextInput multiline={true}
+                       style={[styles.textInput, {
+                           height: screenHeight * 0.22,
+                           textAlignVertical: "top",
+                           paddingTop: 2,
+                           marginVertical: marginVertical
+                       }]}
+
+                       onChangeText={(text) => setFullDesc(text)}
+                       placeholder={"Описание"}/>
         </View>
-    </>
+    </ScrollView>
 }
 
 const styles = StyleSheet.create({
