@@ -43,7 +43,7 @@ export default function CharityEditScreen({route: {params: {charityID}}}: Charit
 
     const ref = useRef<typeof TagSelect>()
     const screenHeight = useSafeAreaFrame().height;
-    const textInputHeight = screenHeight * 0.05
+    const textInputHeight = screenHeight * 0.04
     const marginVertical = screenHeight * 0.01
 
     const dispatch = useAppDispatch()
