@@ -31,7 +31,11 @@ import {iconCopy} from "../../../assets/iconCopy";
 import {iconRouble} from "../../../assets/iconRouble";
 import DatePicker from "react-native-date-picker";
 import * as Clipboard from 'expo-clipboard';
+import * as DocumentPicker from 'expo-document-picker';
 import Modal from "react-native-modal/dist/modal";
+import LargeIconButton from "../components/LargeIconButton";
+import FileViewComponent from "../components/FileViewComponent";
+import ImageRow from "../components/ImageRow";
 
 const reactNativeTagSelect = require("react-native-tag-select")
 const TagSelect = reactNativeTagSelect.TagSelect
@@ -54,6 +58,8 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
     const [datePickerOpen, setDatePickerOpen] = useState(false)
     const [amount, setAmount] = useState("")
     const [showModal, setShowModal] = useState(false)
+    const [images, setImages] = useState(["", "", "", ""])
+    const [files, setFiles] = useState<{uri: string, name: string}[]>([])
 
     const ref = useRef<typeof TagSelect>()
     const screenHeight = useSafeAreaFrame().height;
@@ -87,6 +93,20 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             setAmount(text);
         }
     };
+
+    const selectFiles = async () => {
+        const res = await DocumentPicker.getDocumentAsync({type: 'application/pdf', multiple: false});
+
+        if (!res.canceled) {
+
+            const newFiles = [...files];
+            res.assets[0].uri
+            newFiles.push({uri: res.assets[0].uri, name: res.assets[0].name})
+
+            setFiles(newFiles);
+
+        }
+    }
 
     // TODO: Интерфейс для заголовочного поста эндпоинт для проверки пожретвования
 
@@ -145,7 +165,8 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             <Text style={[styles.title, {marginVertical: marginVertical}]}>Номер кошелька ЮMoney</Text>
 
             <Button onPress={() => setShowModal(true)} text={"Как заполнить?"}
-                    containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}} textStyle={{fontSize: 14, paddingHorizontal:"10%"}}/>
+                    containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}}
+                    textStyle={{fontSize: 14, paddingHorizontal: "10%"}}/>
 
             <TextInput
                 style={{...styles.textInput, height: textInputHeight}}
@@ -190,7 +211,12 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
             <Text style={{marginVertical: marginVertical}}>В разделе HTTP-Уведомления укажите следующий url и нажмите
                 “протестировать”:</Text>
-            <View style={{flexDirection: "row", justifyContent: "space-between", width: "100%", marginBottom: marginVertical}}>
+            <View style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+                marginBottom: marginVertical
+            }}>
                 <Text style={hyperlink}
                       onPress={() => copyToClipboard("donapp-d2378.web.app/12315231/callback")}>donapp-d2378.web.app/12315231/callback</Text>
                 <SvgXml xml={iconCopy} onPress={() => copyToClipboard("donapp-d2378.web.app/12315231/callback")}/>
@@ -229,9 +255,10 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                 <SvgXml xml={iconRouble} style={{position: "absolute", right: "2%", top: "45%"}}/>
             </View>
 
-            <Text style={[styles.header, {marginVertical: marginVertical, marginTop: marginVertical * 2}]}>Главная запись</Text>
+            <Text style={[styles.header, {marginVertical: marginVertical, marginTop: marginVertical * 2}]}>Главная
+                запись</Text>
 
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Название</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Название (также название кампании)</Text>
 
             <TextInput
                 style={{...styles.textInput, height: textInputHeight}}
@@ -252,6 +279,27 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
                        onChangeText={(text) => setFullDesc(text)}
                        placeholder={"Описание"}/>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Прикрепите вложения</Text>
+
+            <ImageRow onClick={undefined} source={images} setSource={(newImages) => {
+                setImages(newImages)
+            }} dimen={screenHeight * 0.10}/>
+
+            {files.length < 2 &&
+                <LargeIconButton containerStyle={{height: screenHeight * 0.06, marginVertical: marginVertical}}
+                                 onPress={selectFiles} text={"Добавить документ"}/>}
+
+            {files.map((value, index) => {
+                    return <FileViewComponent key={index} containerStyle={{height: screenHeight * 0.06, marginVertical: marginVertical}}
+                                              onRemove={() => {
+                                                  const copy = [...files]
+                                                  copy.splice(index, 1)
+                                                  setFiles(copy )
+                                              }} text={value.name}/>
+
+            })}
+
+
         </View>
     </ScrollView>
 }

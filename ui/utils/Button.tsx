@@ -13,6 +13,7 @@ export default function Button({onPress, text, containerStyle, textStyle, active
     return <View style={{alignSelf: "center"}}>
         <TouchableOpacity style={[styles.buttonContainer, containerStyle, !active && {backgroundColor: BUTTON_INACTIVE_COLOR}]}
                           onPress={active ? onPress : undefined}
+                          activeOpacity={active ? 0.7 : 1}
         >
             <Text style={[styles.buttonText, textStyle]}>{text}</Text>
         </TouchableOpacity>
