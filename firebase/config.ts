@@ -4,6 +4,7 @@ import firebase from 'firebase/compat/app';
 import {firebaseConfig} from "./secrets";
 import {getReactNativePersistence, initializeAuth} from "firebase/auth"
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import "firebase/storage";
 
 const app = firebase.apps.length === 0 ? firebase.initializeApp(firebaseConfig) : firebase.app()
 initializeAuth(app, {

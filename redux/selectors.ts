@@ -7,3 +7,5 @@ export const selectProfileState = (state: RootState) => state.profile;
 export const selectCharitiesState = (state: RootState) => state.charities
 
 export const selectResourceState = (state: RootState) => state.resource
+
+export const selectCampaignsState = (state: RootState) => state.campaigns

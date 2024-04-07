@@ -4,28 +4,21 @@ import {
     StyleSheet,
     Text,
     TextInput,
-    Button as ReactButton,
     View, Linking,
 } from "react-native";
 import React, {useRef, useState} from "react";
 import {hyperlink, textInput} from "../../../styles/styles";
 import {SvgXml} from "react-native-svg";
-import {iconSocial} from "../../../assets/iconSocial";
-import {iconGeo} from "../../../assets/iconGeo";
 import {useSelector} from "react-redux";
-import {selectCharitiesState, selectResourceState} from "../../../redux/selectors";
+import {selectCampaignsState, selectResourceState} from "../../../redux/selectors";
 import {TagModel} from "../../../data/model/TagModel";
-import {HYPERLINK_BLUE, PRIMARY_COLOR} from "../../../styles/colors";
+import {PRIMARY_COLOR} from "../../../styles/colors";
 import {DefaultTheme, useNavigation} from "@react-navigation/native";
 import Button from "../../utils/Button";
 import {useSafeAreaFrame} from "react-native-safe-area-context";
-import {pickPlace} from 'react-native-place-picker';
-import {PlacePickerResults} from "react-native-place-picker/src/interfaces";
 import {useAppDispatch} from "../../../hooks";
 import Spinner from "react-native-loading-spinner-overlay";
-import {CampaignCreationProps, CharityEditProps, CreateCharityProps} from "../../../Navigate";
-import {editConfirmedCharity} from "../../../redux/slices/charitiesSlice";
-import {isFirebaseError} from "../../../utils/isFirebaseError";
+import {CampaignCreationProps} from "../../../Navigate";
 import Toast from "react-native-simple-toast";
 import {iconCopy} from "../../../assets/iconCopy";
 import {iconRouble} from "../../../assets/iconRouble";
@@ -36,21 +29,23 @@ import Modal from "react-native-modal/dist/modal";
 import LargeIconButton from "../components/LargeIconButton";
 import FileViewComponent from "../components/FileViewComponent";
 import ImageRow from "../components/ImageRow";
+import {CampaignModel} from "../../../data/model/CampaignModel";
+import {PostLocalModel} from "../../../data/model/PostLocalModel";
+import firebase from "firebase/compat";
+import FieldValue = firebase.firestore.FieldValue;
+import {createCampaign} from "../../../redux/slices/campaignsSlice";
+
 
 const reactNativeTagSelect = require("react-native-tag-select")
 const TagSelect = reactNativeTagSelect.TagSelect
 
 export default function CampaignCreationScreen({route: {params: {charityID}}}: CampaignCreationProps) {
-    const state = useSelector(selectCharitiesState)
-    const charity = state.confirmedCharities.find(charity => charity.id == charityID)!!
+    const state = useSelector(selectCampaignsState)
     const currentDate = new Date()
     const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
 
-    const [briefDesc, setBriefDesc] = useState<string>(charity ? charity.briefDescription : "")
-    const [fullDesc, setFullDesc] = useState<string>(charity ? charity.description : "")
-    const [social, setSocial] = useState<string>(charity ? charity.url ? charity.url : "" : "")
-    const [checkedTagsCount, setCheckedTagsCount] = useState(charity ? charity.tags.length : 0)
-    const [managerContact, setManagerContact] = useState<string>(charity ? charity.managerContact : "")
+    const [fullDesc, setFullDesc] = useState<string>("")
+    const [checkedTagsCount, setCheckedTagsCount] = useState(0)
     const [title, setTitle] = useState("")
     const [paymentAccount, setPaymentAccount] = useState<string>("")
     const [secretKey, setSecretKey] = useState<string>("")
@@ -60,6 +55,8 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
     const [showModal, setShowModal] = useState(false)
     const [images, setImages] = useState(["", "", "", ""])
     const [files, setFiles] = useState<{uri: string, name: string}[]>([])
+    const [docID, setDocID] = useState<string | undefined>(undefined)
+    const [notificationsConfirmed, setNotificationsConfirmed] = useState(false)
 
     const ref = useRef<typeof TagSelect>()
     const screenHeight = useSafeAreaFrame().height;
@@ -80,12 +77,49 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
         Toast.show("Ссылка скопирована", Toast.SHORT)
     };
 
+
+    const requestCreateCampaign = async () => {
+        const campaign: CampaignModel = {
+            collectedamount: 0,
+            parentcharity: charityID,
+            totalamount: isNaN(Number(amount)) ? 0 : Number(amount),
+            name: title,
+            confirmednotifications: notificationsConfirmed,
+        }
+        paymentAccount !== "" && (campaign.yoomoney = paymentAccount)
+        checkedTagsCount !== 0 && (campaign.tags = getSelectedTags())
+        date !== null && (campaign.enddate = formatter.format(date))
+
+        const post: PostLocalModel = {
+            pinned: true,
+            header: title,
+            fulltext: fullDesc,
+            date: FieldValue.serverTimestamp()
+        }
+
+        files.length !== 0 ? (post.documents = files) : post.documents = []
+        const filteredImages = images.filter(value => value !== "")
+        filteredImages.length !== 0 ? (post.images = filteredImages) : post.images = []
+
+
+
+        try {
+            if (notificationsConfirmed && docID) {
+                await dispatch(createCampaign({documentID: docID, campaign: campaign, pinnedPost: post})).unwrap()
+            } else {
+                await dispatch(createCampaign({campaign: campaign, pinnedPost: post})).unwrap()
+            }
+            nav.pop()
+        } catch (e) {
+            console.log(e)
+            Toast.show("Не создать кампанию", Toast.LONG)
+        }
+
+    }
+
     const formValid = () => {
-        return briefDesc.length != 0 &&
-            fullDesc.length != 0 &&
-            social.length != 0 &&
-            checkedTagsCount != 0 &&
-            managerContact.length != 0
+        return fullDesc.length != 0 &&
+            title.length != 0 && (!isNaN(Number(amount)) || amount.length == 0)
     }
 
     const handleAmountChange = (text: string) => {
@@ -98,22 +132,16 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
         const res = await DocumentPicker.getDocumentAsync({type: 'application/pdf', multiple: false});
 
         if (!res.canceled) {
-
             const newFiles = [...files];
             res.assets[0].uri
             newFiles.push({uri: res.assets[0].uri, name: res.assets[0].name})
-
             setFiles(newFiles);
-
         }
     }
 
-    // TODO: Интерфейс для заголовочного поста эндпоинт для проверки пожретвования
-
-
     return <ScrollView>
         <Spinner
-            visible={state.editLoading}
+            visible={state.createLoading}
             textContent={'Создание...'}
             textStyle={{color: "white"}}
         />
@@ -299,7 +327,9 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
             })}
 
-
+            <Button containerStyle={{marginVertical: marginVertical}} onPress={requestCreateCampaign} text={"Готово"}
+                    active={formValid()}
+            />
         </View>
     </ScrollView>
 }

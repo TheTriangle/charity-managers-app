@@ -3,8 +3,11 @@ import {AuthMethods} from "../model/authMethods";
 import firebase from "firebase/compat";
 import NetInfo from "@react-native-community/netinfo";
 import {CharityModel} from "../model/СharityModel";
-import firestore = firebase.firestore;
 import {TagModel} from "../model/TagModel";
+import {CampaignModel} from "../model/CampaignModel";
+import {PostLocalModel} from "../model/PostLocalModel";
+import firestore = firebase.firestore;
+import {getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const userExists = async (
     email: string,
@@ -72,6 +75,111 @@ export const updateConfirmedCharity = async (data: {
     const isConnected = await NetInfo.fetch().then(state => state.isConnected);
     if (isConnected) {
         await firestore().collection("charities").doc(data.id).update(data)
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+const uploadFile = async (uri: string, name: string, campaignID: string) => {
+
+    const storage = getStorage()
+
+    const fileRef = ref(storage,`campaigns/${campaignID}/attachments/${name}`)
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    await uploadBytes(fileRef, blob)
+
+
+    return await getDownloadURL(fileRef)
+};
+
+const uploadPhoto = async (uri: string, campaignID: string) => {
+
+    const storage = getStorage()
+
+    const fileRef = ref(storage, `campaigns/${campaignID}/attachments/${uri}`)
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    await uploadBytes(fileRef, blob)
+
+    return await getDownloadURL(fileRef)
+};
+
+
+const uploadFiles = async (files: { uri: string, name: string }[], campaignID: string) => {
+    return await Promise.all(files.map(value => uploadFile(value.uri, value.name, campaignID)));
+};
+
+const uploadPhotos = async (photos: string[], campaignID: string) => {
+    return await Promise.all(photos.map(value => uploadPhoto(value, campaignID)));
+};
+
+export const createPost = async (data: {
+    campaignID: string,
+    post: PostLocalModel
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const postRef = firestore().collection("campaigns").doc(data.campaignID).collection("posts").doc()
+        const [files, images] = await Promise.all([data.post.documents && uploadFiles(data.post.documents, data.campaignID),
+            data.post.images && uploadPhotos(data.post.images, data.campaignID)])
+        await postRef.set({...data.post, images: images, documents: files})
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const requestCreateCampaign = async (data: {
+    documentID?: string
+    campaign: CampaignModel
+    pinnedPost: PostLocalModel
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const batch = firestore().batch()
+        if (data.documentID) {
+            const campaignRef = firestore().collection("campaigns").doc(data.documentID)
+
+            const [files, images] = await Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
+                data.pinnedPost.images && uploadPhotos(data.pinnedPost.images, campaignRef.id)])
+
+            batch.update(campaignRef, data.campaign)
+            const postRef = firestore().collection("campaigns").doc(campaignRef.id).collection("posts").doc()
+            batch.set(postRef, {...data.pinnedPost, images: images, documents: files})
+            await batch.commit()
+            return {...data.campaign, id: campaignRef.id} as CampaignModel
+        } else {
+            const campaignRef = firestore().collection("campaigns").doc()
+
+            const [files, images] = await Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
+                data.pinnedPost.images && uploadPhotos(data.pinnedPost.images, campaignRef.id)])
+
+            batch.set(campaignRef, data.campaign)
+            const postRef = firestore().collection("campaigns").doc(campaignRef.id).collection("posts").doc()
+            batch.set(postRef, {...data.pinnedPost, images: images, documents: files})
+            await batch.commit()
+            return {...data.campaign, id: campaignRef.id} as CampaignModel
+        }
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const requestGetCampaigns = async (data: {
+    charityID: string
+}) =>{
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const snapshot = await firestore().collection("campaigns").where("parentcharity","==", data.charityID).get()
+        if (!snapshot.empty) {
+            return snapshot.docs.map(value => value.data() as CampaignModel)
+        } else {
+            return []
+        }
     } else {
         throw Error("No internet connection")
     }

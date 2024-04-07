@@ -3,13 +3,15 @@ import authReducer from "./slices/authSlice";
 import profileReducer from "./slices/profileSlice"
 import charitiesReducer from "./slices/charitiesSlice"
 import resourceReducer from "./slices/resourceSlice";
+import campaignsReducer from "./slices/campaignsSlice";
 
 export const store = configureStore({
     reducer: {
         auth: authReducer,
         profile: profileReducer,
         charities: charitiesReducer,
-        resource: resourceReducer
+        resource: resourceReducer,
+        campaigns: campaignsReducer
     }
 })
 
