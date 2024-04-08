@@ -11,14 +11,20 @@ import {useSelector} from "react-redux";
 import {selectCharitiesState} from "../../../redux/selectors";
 import Button from "../../utils/Button";
 import {AntDesign} from '@expo/vector-icons';
-import {useNavigation} from "@react-navigation/native";
+import {useIsFocused, useNavigation} from "@react-navigation/native";
+import {clearCampaigns} from "../../../redux/slices/campaignsSlice";
 
 export default function OrganizationsScreen() {
     const [page, setPage] = useState<number>(0)
+    const isFocused = useIsFocused()
     const pagerRef = useRef<PagerView>(null);
     const state = useSelector(selectCharitiesState)
     const dispatch = useAppDispatch()
     const nav = useNavigation<any>()
+
+    useEffect(() => {
+        dispatch(clearCampaigns())
+    }, [isFocused]);
 
     useEffect(() => {
         dispatch(getCharities())

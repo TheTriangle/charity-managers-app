@@ -11,7 +11,7 @@ export const createCampaign = createAsyncThunk('campaigns/createCampaign', async
     return await requestCreateCampaign(data)
 })
 
-export const getCampaign = createAsyncThunk('campaigns/getCampaign', async (data : {
+export const getCampaigns = createAsyncThunk('campaigns/getCampaign', async (data : {
     charityID: string
 }) => {
     return await requestGetCampaigns(data)
@@ -41,7 +41,11 @@ const initialState: initialStateType = {
 const campaignsSlice = createSlice({
     name: 'charities',
     initialState: initialState,
-    reducers: {},
+    reducers: {
+        clearCampaigns: (state) => {
+            state.campaigns = []
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(createCampaign.pending, (state) => {
@@ -58,21 +62,24 @@ const campaignsSlice = createSlice({
                 state.createError = action.error.message ? action.error.message : ""
             })
 
-            .addCase(getCampaign.pending, (state) => {
+            .addCase(getCampaigns.pending, (state) => {
                 state.loading = true
                 state.error = null
             })
-            .addCase(getCampaign.fulfilled, (state, action) => {
+            .addCase(getCampaigns.fulfilled, (state, action) => {
                 state.loading = false
                 state.error = null
                 state.campaigns = action.payload
             })
-            .addCase(getCampaign.rejected, (state, action) => {
+            .addCase(getCampaigns.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.error.message ? action.error.message : ""
             })
     },
 });
 
+export const {
+    clearCampaigns
+} = campaignsSlice.actions;
 
 export default campaignsSlice.reducer
