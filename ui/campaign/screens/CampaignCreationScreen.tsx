@@ -94,7 +94,9 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             pinned: true,
             header: title,
             fulltext: fullDesc,
-            date: FieldValue.serverTimestamp()
+            date: FieldValue.serverTimestamp(),
+            likesCount: 0,
+            commentsCount: 0
         }
 
         files.length !== 0 ? (post.documents = files) : post.documents = []

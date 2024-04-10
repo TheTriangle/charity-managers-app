@@ -4,6 +4,7 @@ import profileReducer from "./slices/profileSlice"
 import charitiesReducer from "./slices/charitiesSlice"
 import resourceReducer from "./slices/resourceSlice";
 import campaignsReducer from "./slices/campaignsSlice";
+import postsReducer from "./slices/postsSlice";
 
 export const store = configureStore({
     reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
         profile: profileReducer,
         charities: charitiesReducer,
         resource: resourceReducer,
-        campaigns: campaignsReducer
+        campaigns: campaignsReducer,
+        posts: postsReducer,
     }
 })
 

@@ -16,6 +16,8 @@ import {CharityModel} from "./data/model/СharityModel";
 import CharityScreen from "./ui/charity/screens/CharityScreen";
 import CharityEditScreen from "./ui/charity/screens/CharityEditScreen";
 import CampaignCreationScreen from "./ui/campaign/screens/CampaignCreationScreen";
+import {CampaignModel} from "./data/model/CampaignModel";
+import CampaignScreen from "./ui/campaign/screens/CampaignScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -77,6 +79,10 @@ const campaignCreationOptions = {
     ...commonOptions,
 }
 
+const campaignOptions = {
+    ...commonOptions,
+}
+
 const ProfileStack = createStackNavigator()
 
 const ProfileStackNavigator = () => {
@@ -98,6 +104,10 @@ type OrganizationsStackParamList = {
     },
     CreateCampaign: {
         charityID: string
+    },
+    Campaign: {
+        campaign: CampaignModel,
+        charityName: string
     }
 }
 
@@ -109,11 +119,13 @@ export type CharityEditProps = StackScreenProps<OrganizationsStackParamList, 'Ch
 
 export type CampaignCreationProps = StackScreenProps<OrganizationsStackParamList, 'CreateCampaign'>;
 
+export type CampaignProps = StackScreenProps<OrganizationsStackParamList, 'Campaign'>;
+
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
 // @ts-ignore
 const OrganizationsStackNavigator = ({ navigation, route }) => {
-    const tabHiddenRoutes = ["CreateCharity", "CharityEdit"];
+    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign"];
     React.useLayoutEffect(() => {
         // const routeName = getFocusedRouteNameFromRoute(route);
         if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route) as string)){
@@ -128,6 +140,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
         <OrganizationsStack.Screen name={"Charity"} component={CharityScreen} options={charityOptions}/>
         <OrganizationsStack.Screen name={"CharityEdit"} component={CharityEditScreen} options={charityEditOptions}/>
         <OrganizationsStack.Screen name={"CreateCampaign"} component={CampaignCreationScreen} options={campaignCreationOptions}/>
+        <OrganizationsStack.Screen name={"Campaign"} component={CampaignScreen} options={campaignOptions}/>
     </OrganizationsStack.Navigator>
 }
 

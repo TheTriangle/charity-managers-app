@@ -39,7 +39,7 @@ const initialState: initialStateType = {
 }
 
 const campaignsSlice = createSlice({
-    name: 'charities',
+    name: 'campaigns',
     initialState: initialState,
     reducers: {
         clearCampaigns: (state) => {

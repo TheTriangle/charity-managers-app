@@ -1,31 +1,28 @@
-import {DimensionValue, StyleSheet, Text, TextStyle, View, ViewStyle} from "react-native";
+import {DimensionValue, Pressable, StyleSheet, Text, TextStyle, View, ViewStyle} from "react-native";
 import {iconAttach} from "../../../assets/iconAttach";
 import React from "react";
-import {
-    BUTTON_INACTIVE_COLOR,
-} from "../../../styles/colors";
 import {SvgXml} from "react-native-svg";
 import {iconAttachedFile} from "../../../assets/iconAttachedFile";
 import {iconTrashCan} from "../../../assets/iconTrashCan";
 
 
-export default function FileViewComponent({onRemove, text, containerStyle, textStyle, active = true, icon = iconAttach, width = "100%"}: {
+export default function FileViewComponent({onRemove, text, containerStyle, textStyle, onClick, icon = iconAttach, width = "100%"}: {
     onRemove: (() => void) | undefined,
     text: string,
+    onClick?: (() => void) | undefined,
     containerStyle?: ViewStyle,
     textStyle?: TextStyle,
-    active?: boolean,
     icon?: string,
     width?: DimensionValue
 }) {
 
     return <View style={{alignSelf: "center", width: width}}>
-        <View style={[styles.buttonContainer, containerStyle, !active && {backgroundColor: BUTTON_INACTIVE_COLOR}]}
+        <Pressable style={[styles.buttonContainer, containerStyle]}  onPress={onClick ? () => onClick() : undefined}
         >
             <SvgXml xml={iconAttachedFile} style={{marginRight: 20}}/>
             <Text style={[styles.buttonText, textStyle]}>{text.length > 25 ? text.substring(0, 22) + "..." : text}</Text>
-            <SvgXml xml={iconTrashCan} style={{position: "absolute", right: 10}} onPress={onRemove}/>
-        </View>
+            {onRemove !== undefined && <SvgXml xml={iconTrashCan} style={{position: "absolute", right: 10}} onPress={onRemove}/>}
+        </Pressable>
     </View>
 }
 
@@ -33,8 +30,6 @@ const styles = StyleSheet.create({
     buttonContainer: {
         alignItems: "center",
         alignSelf: "center",
-        // alignContent: "space-around",
-        // justifyContent: "center",
         padding: 8,
         width: "100%",
         paddingHorizontal: "2%",
