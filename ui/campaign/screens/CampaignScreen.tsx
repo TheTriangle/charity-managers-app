@@ -29,52 +29,6 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
         fetchPosts()
     }, []);
 
-    // const pinned = {
-    //     id: "qwe",
-    //     header: "qwe",
-    //     fulltext: "qwe",
-    //     pinned: true,
-    //     images: ["https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg", "https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg"],
-    //     date: Timestamp.now(),
-    //     likesCount: 2,
-    //     commentsCount: 3
-    // }
-
-    // const posts: PostRemoteModel[] = [{
-    //     id: "qwe",
-    //     header: "qwe",
-    //     fulltext: "qwe",
-    //     pinned: true,
-    //     images: ["https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg", "https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg"],
-    //     date: Timestamp.now(),
-    //     likesCount: 2,
-    //     commentsCount: 3
-    // },
-    //     {
-    //         id: "qwe",
-    //         header: "qwe",
-    //         fulltext: "qwe",
-    //         pinned: true,
-    //         images: ["https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg", "https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg"],
-    //         date: Timestamp.now(),
-    //         likesCount: 2,
-    //         commentsCount: 3
-    //     },
-    //     {
-    //         id: "qwe",
-    //         header: "qwe",
-    //         fulltext: "qwe",
-    //         pinned: true,
-    //         images: ["https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg", "https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg"],
-    //         date: Timestamp.now(),
-    //         likesCount: 2,
-    //         commentsCount: 3
-    //     }
-    // ]
-
-
-
-    // // TODO: Получать посты с сервера
     return <View style={styles.container}>
         <ScrollView style={{width: "100%"}} contentContainerStyle={{padding: "4%"}} refreshControl={<RefreshControl
                 colors={["#9Bd35A", "#689F38"]}

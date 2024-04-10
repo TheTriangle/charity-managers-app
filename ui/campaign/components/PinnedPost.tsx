@@ -21,17 +21,9 @@ export default function PinnedPost({postModel, charityName, collectedAmount, req
     actions: (() => void)[],
     containerStyle?: ViewStyle
 }) {
-
-
-
-    const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
     const fillPercentage = requiredAmount == 0 ? 0 :
         (collectedAmount > requiredAmount ? 100 : (collectedAmount / requiredAmount) * 100)
     const collected = requiredAmount == 0 ? `Собрано ${collectedAmount}` : `Собрано ${collectedAmount} из ${requiredAmount}`
-
-    useEffect(() => {
-        console.log("pinned " + postModel)
-    }, []);
 
     return <View style={[styles.container, containerStyle]}>
         <View style={{position: "absolute", right: 0, marginTop: 10}}>

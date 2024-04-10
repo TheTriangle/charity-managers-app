@@ -3,8 +3,6 @@ import {PostLocalModel, PostRemoteModel} from "../../data/model/PostLocalModel";
 import {
     createPostRequest,
     getPostsRequest,
-    requestCreateCampaign,
-    requestGetCampaigns
 } from "../../data/repo/repository";
 
 export const createPost = createAsyncThunk('posts/createPost', async (data : {
