@@ -3,7 +3,7 @@ import {StyleSheet, Text, View, ViewStyle, Image, Linking} from 'react-native';
 import OptionsMenu from "react-native-option-menu";
 import {SvgXml} from "react-native-svg";
 import {iconDots} from "../../../assets/iconDots";
-import React, {useEffect} from "react";
+import React from "react";
 import {PostRemoteModel} from "../../../data/model/PostLocalModel";
 import FileViewComponent from "./FileViewComponent";
 import {iconLike} from "../../../assets/iconLike";

@@ -37,7 +37,7 @@ export default function PostListItem({postModel, onCommentsClick, containerStyle
         <Text style={{marginBottom: marginVertical * 2}}>{postModel.fulltext}</Text>
 
         {/*TODO: Поменять высоту на адекватную*/}
-        {postModel.images && <PagerView style={{width: "100%", height: 300}} initialPage={0}>
+        {postModel.images && postModel.images.length > 0 && <PagerView style={{width: "100%", height: 300}} initialPage={0}>
 
             {postModel.images.map((value, index) => {
                 return <View key={index} style={{flex: 1}}>

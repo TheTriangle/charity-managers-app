@@ -10,6 +10,8 @@ import Toast from "react-native-simple-toast";
 import {getPosts} from "../../../redux/slices/postsSlice";
 import PinnedPost from "../components/PinnedPost";
 import {RefreshControl} from "react-native-gesture-handler";
+import Button from "../../utils/Button";
+import {PRIMARY_COLOR} from "../../../styles/colors";
 
 export default function CampaignScreen({route: {params: {campaign, charityName}}}: CampaignProps) {
 
@@ -30,7 +32,7 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
     }, []);
 
     return <View style={styles.container}>
-        <ScrollView style={{width: "100%"}} contentContainerStyle={{padding: "4%"}} refreshControl={<RefreshControl
+        <ScrollView style={{width: "100%"}} contentContainerStyle={{padding: "4%", paddingBottom: 70}} refreshControl={<RefreshControl
                 colors={["#9Bd35A", "#689F38"]}
                 refreshing={postsState.loading}
                 onRefresh={fetchPosts}/>}>
@@ -43,6 +45,11 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
         })}
 
         </ScrollView>
+        <View style={{position: "absolute", alignSelf: "center", bottom: 20, opacity: 0.8}}>
+            <Button containerStyle={{backgroundColor: PRIMARY_COLOR}}
+                onPress={() => nav.navigate("CreatePost", {campaignID: campaign.id!!})} text={"Добавить пост"}/>
+        </View>
+
     </View>
 
 }

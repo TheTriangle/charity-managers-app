@@ -55,7 +55,7 @@ const postsSlice = createSlice({
             .addCase(createPost.fulfilled, (state, action) => {
                 state.createLoading = false
                 state.createError = null
-                state.posts.push(action.payload)
+                state.posts.unshift(action.payload)
             })
             .addCase(createPost.rejected, (state, action) => {
                 state.createLoading = false

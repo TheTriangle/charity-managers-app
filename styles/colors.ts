@@ -10,6 +10,8 @@ export const PRIMARY_COLOR_50 = "rgba(103,171,141,0.30)"
 
 export const PRIMARY_COLOR_80 = "rgba(103,171,141,0.8)"
 
+export const PRIMARY_COLOR_60 = "rgba(103,171,141,0.8)"
+
 export const BUTTON_ACTIVE_COLOR= "#3C91E6"
 
 export const BUTTON_INACTIVE_COLOR= "rgba(60,145,230,0.5)"

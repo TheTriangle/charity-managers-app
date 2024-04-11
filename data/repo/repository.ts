@@ -124,6 +124,7 @@ export const createPostRequest = async (data: {
 }) => {
     const isConnected = await NetInfo.fetch().then(state => state.isConnected);
     if (isConnected) {
+        const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
         const postRef = firestore().collection("campaigns").doc(data.campaignID).collection("posts").doc()
         const [files, images] = await Promise.all([data.post.documents && uploadFiles(data.post.documents, data.campaignID),
             data.post.images && uploadPhotos(data.post.images, data.campaignID)])
@@ -133,7 +134,8 @@ export const createPostRequest = async (data: {
                 name: data.post.documents!![index].name
             }})
         await postRef.set({...data.post, images: images, documents: documents})
-        return (await postRef.get()).data() as PostRemoteModel
+        const post = await postRef.get()
+        return {...post.data(), date: formatter.format(post.data()!!.date.toDate())} as PostRemoteModel
     } else {
         throw Error("No internet connection")
     }
@@ -210,7 +212,7 @@ export const getPostsRequest = async (data: { campaignID: string }) => {
     if (isConnected) {
         const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
         const snapshot = await firestore().collection("campaigns").doc(data.campaignID).collection("posts")
-            // .orderBy("date")
+            .orderBy("date", "desc")
             .get()
         if (!snapshot.empty) {
             return snapshot.docs.map(value => {
