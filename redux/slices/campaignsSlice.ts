@@ -2,8 +2,9 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {CampaignModel} from "../../data/model/CampaignModel";
 import {PostLocalModel} from "../../data/model/PostLocalModel";
 import {requestCreateCampaign, requestGetCampaigns} from "../../data/repo/repository";
+import {finishCampaign} from "./postsSlice";
 
-export const createCampaign = createAsyncThunk('campaigns/createCampaign', async (data : {
+export const createCampaign = createAsyncThunk('campaigns/createCampaign', async (data: {
     documentID?: string,
     campaign: CampaignModel,
     pinnedPost: PostLocalModel
@@ -11,7 +12,7 @@ export const createCampaign = createAsyncThunk('campaigns/createCampaign', async
     return await requestCreateCampaign(data)
 })
 
-export const getCampaigns = createAsyncThunk('campaigns/getCampaign', async (data : {
+export const getCampaigns = createAsyncThunk('campaigns/getCampaign', async (data: {
     charityID: string
 }) => {
     return await requestGetCampaigns(data)
@@ -74,6 +75,14 @@ const campaignsSlice = createSlice({
             .addCase(getCampaigns.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.error.message ? action.error.message : ""
+            })
+
+            .addCase(finishCampaign.fulfilled, (state, action) => {
+                // find campaign in list of camigns and set closed to true
+                const campaignIndex = state.campaigns.findIndex(campaign => campaign.id === action.payload.campaignID);
+                if (campaignIndex !== -1) {
+                    state.campaigns[campaignIndex].closed = true;
+                }
             })
     },
 });

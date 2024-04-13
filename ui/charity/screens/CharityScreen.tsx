@@ -42,7 +42,7 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
 
     return <View style={styles.container}>
         <TitleCard containerStyle={{marginBottom: 20}} title={charity.name} desc={charity.description}
-                   tags={charity.tags} options={["Редактировать", "Удалить", "Отмена"]} actions={[onEditClick]}/>
+                   tags={charity.tags} options={["Редактировать", "Удалить", "Отмена"]} actions={[onEditClick, () => {}]}/>
 
         {!campaignsState.loading && campaignsState.campaigns.length == 0 ?
             <Button onPress={campaignsState.error == null ? () => nav.navigate("CreateCampaign", {charityID: charityID}) : fetchCampaigns} text={campaignsState.error == null ? "Открыть сбор" : "Попробовать снова"}/> :
@@ -52,6 +52,7 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
                               nav.navigate("Campaign", {campaign: item, charityName: charity.name})
                           }} onEditClick={() => {
                           }} onRemoveClick={() => {
+                              nav.navigate("FinishCampaign", {campaign: item,})
                           }}
                           />
                       }} ItemSeparatorComponent={() => <View style={{height: 10}}/>}

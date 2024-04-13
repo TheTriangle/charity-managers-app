@@ -10,4 +10,5 @@ export interface CampaignModel {
     tags?: TagModel[]
     confirmednotifications: boolean
     enddate?: string
+    closed?: boolean
 }

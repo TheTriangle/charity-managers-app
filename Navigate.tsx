@@ -19,6 +19,7 @@ import CampaignCreationScreen from "./ui/campaign/screens/CampaignCreationScreen
 import {CampaignModel} from "./data/model/CampaignModel";
 import CampaignScreen from "./ui/campaign/screens/CampaignScreen";
 import PostCreationScreen from "./ui/campaign/screens/PostCreationScreen";
+import FinishCampaignScreen from "./ui/campaign/screens/FinishCampaignScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -116,6 +117,9 @@ type OrganizationsStackParamList = {
     },
     CreatePost: {
         campaignID: string
+    },
+    FinishCampaign: {
+        campaign: CampaignModel,
     }
 }
 
@@ -130,6 +134,9 @@ export type CampaignCreationProps = StackScreenProps<OrganizationsStackParamList
 export type CampaignProps = StackScreenProps<OrganizationsStackParamList, 'Campaign'>;
 
 export type PostCreationProps = StackScreenProps<OrganizationsStackParamList, 'CreatePost'>;
+
+export type FinishCampaignProps = StackScreenProps<OrganizationsStackParamList, 'FinishCampaign'>;
+
 
 
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
@@ -153,6 +160,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
         <OrganizationsStack.Screen name={"CreateCampaign"} component={CampaignCreationScreen} options={campaignCreationOptions}/>
         <OrganizationsStack.Screen name={"Campaign"} component={CampaignScreen} options={campaignOptions}/>
         <OrganizationsStack.Screen name={"CreatePost"} component={PostCreationScreen} options={postCreationOptions}/>
+        <OrganizationsStack.Screen name={"FinishCampaign"} component={FinishCampaignScreen} options={postCreationOptions}/>
 
     </OrganizationsStack.Navigator>
 }

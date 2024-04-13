@@ -10,6 +10,9 @@ export interface PostLocalModel {
     likesCount: number
     commentsCount: number
     date: FieldValue
+    finish?: boolean
+    notify?: boolean,
+    collectedFull?: boolean
 }
 
 export interface PostRemoteModel {
@@ -22,4 +25,5 @@ export interface PostRemoteModel {
     likesCount: number
     commentsCount: number
     date: string
+    finish?: boolean
 }

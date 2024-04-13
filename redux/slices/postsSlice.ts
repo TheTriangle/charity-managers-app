@@ -18,6 +18,13 @@ export const getPosts = createAsyncThunk('posts/getPosts', async (data : {
     return await getPostsRequest(data)
 })
 
+export const finishCampaign = createAsyncThunk('posts/finishCampaign', async (data : {
+    campaignID: string,
+    post: PostLocalModel
+}) => {
+    return {campaignID: data.campaignID, post: await createPostRequest(data)}
+})
+
 
 interface initialStateType {
     createLoading: boolean,
@@ -75,6 +82,20 @@ const postsSlice = createSlice({
             .addCase(getPosts.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.error.message ? action.error.message : ""
+            })
+
+            .addCase(finishCampaign.pending, (state) => {
+                state.createLoading = true
+                state.createError = null
+            })
+            .addCase(finishCampaign.fulfilled, (state, action) => {
+                state.createLoading = false
+                state.createError = null
+                state.posts.unshift(action.payload.post)
+            })
+            .addCase(finishCampaign.rejected, (state, action) => {
+                state.createLoading = false
+                state.createError = action.error.message ? action.error.message : ""
             })
     },
 });

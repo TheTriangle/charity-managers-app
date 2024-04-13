@@ -4,6 +4,7 @@ import {CampaignModel} from "../../../data/model/CampaignModel";
 import {SvgXml} from "react-native-svg";
 import {iconRemoveX} from "../../../assets/iconRemoveX";
 import {editIcon} from "../../../assets/editIcon";
+import {iconLock} from "../../../assets/iconLock";
 
 export default function CampaignListItem({campaign, containerStyle, onPress, onRemoveClick, onEditClick}: {
     campaign: CampaignModel,
@@ -21,13 +22,14 @@ export default function CampaignListItem({campaign, containerStyle, onPress, onR
     return (
         <View style={[styles.container, containerStyle]}>
 
-            <SvgXml onPress={() => onRemoveClick(campaign)} xml={iconRemoveX} scaleY={0.8} scaleX={0.8}/>
+            {(campaign.closed == undefined || !campaign.closed) && <SvgXml onPress={() => onRemoveClick(campaign)} xml={iconRemoveX} scaleY={0.8} scaleX={0.8}/>}
+            {campaign.closed && <SvgXml onPress={undefined} xml={iconLock} scaleY={0.8} scaleX={0.8}/>}
             <Pressable onPress={() => onPress(campaign)} style={styles.pressableContainer}>
 
                 <View style={[styles.collectedContainer, {width: `${fillPercentage}%`}]}/>
                 <Text style={{position: "absolute", alignSelf: "center", top: "15%"}}>{textValue}</Text>
             </Pressable>
-            <SvgXml onPress={() => onEditClick(campaign)} xml={editIcon} scaleY={0.9} scaleX={0.9}/>
+            {(campaign.closed == undefined  || !campaign.closed) && <SvgXml onPress={() => onEditClick(campaign)} xml={editIcon} scaleY={0.9} scaleX={0.9}/>}
         </View>
     );
 }
