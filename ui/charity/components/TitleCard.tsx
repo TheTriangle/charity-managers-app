@@ -23,7 +23,7 @@ export default function TitleCard({title, desc, tags, containerStyle, options, a
         <View style={styles.headerContainer}>
             <Text style={styles.header}>{title}</Text>
         </View>
-        <Text style={{marginBottom: "2%"}}>{desc.length >= 300 ? desc.substring(0, 200) + "..." : desc.length}</Text>
+        <Text style={{marginBottom: "2%"}}>{desc.length >= 300 ? desc.substring(0, 200) + "..." : desc}</Text>
         <TagsList tags={tags} tagContainerStyle={{backgroundColor: "white"}} containerStyle={{alignSelf: "center"}}/>
     </View>
 

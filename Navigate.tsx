@@ -15,6 +15,11 @@ import React from "react";
 import {CharityModel} from "./data/model/СharityModel";
 import CharityScreen from "./ui/charity/screens/CharityScreen";
 import CharityEditScreen from "./ui/charity/screens/CharityEditScreen";
+import CampaignCreationScreen from "./ui/campaign/screens/CampaignCreationScreen";
+import {CampaignModel} from "./data/model/CampaignModel";
+import CampaignScreen from "./ui/campaign/screens/CampaignScreen";
+import PostCreationScreen from "./ui/campaign/screens/PostCreationScreen";
+import FinishCampaignScreen from "./ui/campaign/screens/FinishCampaignScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -72,6 +77,18 @@ const charityEditOptions = {
     ...commonOptions,
 }
 
+const campaignCreationOptions = {
+    ...commonOptions,
+}
+
+const campaignOptions = {
+    ...commonOptions,
+}
+
+const postCreationOptions = {
+    ...commonOptions,
+}
+
 const ProfileStack = createStackNavigator()
 
 const ProfileStackNavigator = () => {
@@ -90,6 +107,19 @@ type OrganizationsStackParamList = {
     },
     CharityEdit: {
         charityID: string
+    },
+    CreateCampaign: {
+        charityID: string
+    },
+    Campaign: {
+        campaign: CampaignModel,
+        charityName: string
+    },
+    CreatePost: {
+        campaignID: string
+    },
+    FinishCampaign: {
+        campaign: CampaignModel,
     }
 }
 
@@ -99,11 +129,21 @@ export type CharityProps = StackScreenProps<OrganizationsStackParamList, 'Charit
 
 export type CharityEditProps = StackScreenProps<OrganizationsStackParamList, 'CharityEdit'>;
 
+export type CampaignCreationProps = StackScreenProps<OrganizationsStackParamList, 'CreateCampaign'>;
+
+export type CampaignProps = StackScreenProps<OrganizationsStackParamList, 'Campaign'>;
+
+export type PostCreationProps = StackScreenProps<OrganizationsStackParamList, 'CreatePost'>;
+
+export type FinishCampaignProps = StackScreenProps<OrganizationsStackParamList, 'FinishCampaign'>;
+
+
+
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
 // @ts-ignore
 const OrganizationsStackNavigator = ({ navigation, route }) => {
-    const tabHiddenRoutes = ["CreateCharity", "CharityEdit"];
+    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign"];
     React.useLayoutEffect(() => {
         // const routeName = getFocusedRouteNameFromRoute(route);
         if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route) as string)){
@@ -117,6 +157,11 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
         <OrganizationsStack.Screen name={"CreateCharity"} component={CharityCreationScreen} options={creationOptions}/>
         <OrganizationsStack.Screen name={"Charity"} component={CharityScreen} options={charityOptions}/>
         <OrganizationsStack.Screen name={"CharityEdit"} component={CharityEditScreen} options={charityEditOptions}/>
+        <OrganizationsStack.Screen name={"CreateCampaign"} component={CampaignCreationScreen} options={campaignCreationOptions}/>
+        <OrganizationsStack.Screen name={"Campaign"} component={CampaignScreen} options={campaignOptions}/>
+        <OrganizationsStack.Screen name={"CreatePost"} component={PostCreationScreen} options={postCreationOptions}/>
+        <OrganizationsStack.Screen name={"FinishCampaign"} component={FinishCampaignScreen} options={postCreationOptions}/>
+
     </OrganizationsStack.Navigator>
 }
 
