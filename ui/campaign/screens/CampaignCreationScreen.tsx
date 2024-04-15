@@ -293,6 +293,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             <TextInput
                 style={{...styles.textInput, height: textInputHeight}}
                 placeholder={"Название"}
+                maxLength={70}
                 autoCorrect={false}
                 onChangeText={(text) => setTitle(text)}
             />
