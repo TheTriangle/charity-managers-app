@@ -45,7 +45,7 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
         })}
 
         </ScrollView>
-        {(campaign.closed == undefined || !campaign.closed) && <View style={{position: "absolute", alignSelf: "center", bottom: 20, opacity: 0.8}}>
+        {(campaign.closed == undefined || !campaign.closed) && !postsState.loading && <View style={{position: "absolute", alignSelf: "center", bottom: 20, opacity: 0.8}}>
             <Button containerStyle={{backgroundColor: PRIMARY_COLOR}}
                     onPress={() => nav.navigate("CreatePost", {campaignID: campaign.id!!})} text={"Добавить пост"}/>
         </View>}
