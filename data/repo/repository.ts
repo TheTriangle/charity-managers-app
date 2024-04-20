@@ -8,31 +8,59 @@ import {CampaignModel} from "../model/CampaignModel";
 import {PostLocalModel, PostRemoteModel} from "../model/PostLocalModel";
 import firestore = firebase.firestore;
 import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
+import QuerySnapshot = firebase.firestore.QuerySnapshot;
+import DocumentSnapshot = firebase.firestore.DocumentSnapshot;
+
+let repoFirestore = firestore()
+
+const TIMEOUT_MILLIS = 10000
 
 export const userExists = async (
     email: string,
 ) => {
-    const methods = await auth.fetchSignInMethodsForEmail(email)
-    let result = AuthMethods.NONE
-    if (methods.includes("password")) {
-        result |= AuthMethods.EMAIL
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise<string[]>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        })
+        const methodsPromise = auth.fetchSignInMethodsForEmail(email)
+        const methods = await Promise.race([timeoutPromise, methodsPromise])
+        let result = AuthMethods.NONE
+        if (methods.includes("password")) {
+            result |= AuthMethods.EMAIL
+        }
+        if (methods.includes("google.com")) {
+            result |= AuthMethods.GOOGLE
+        }
+        if (methods.includes("apple.com")) {
+            result |= AuthMethods.APPLE
+        }
+        return result
+    } else {
+        throw Error("No internet connection")
     }
-    if (methods.includes("google.com")) {
-        result |= AuthMethods.GOOGLE
-    }
-    if (methods.includes("apple.com")) {
-        result |= AuthMethods.APPLE
-    }
-    return result
 }
 
 export const hasManagerAccount = async () => {
-    const doc = await firestore().collection("users").doc(auth.currentUser?.uid).get()
-    if (doc.exists) {
-        const data = doc.data()
-        return data!.hasOwnProperty("managerName")
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise<DocumentSnapshot>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        })
+        const existsPromise = firestore().collection("users").doc(auth.currentUser?.uid).get()
+        const doc = await Promise.race([timeoutPromise, existsPromise])
+        if (doc.exists) {
+            const data = doc.data()
+            return data!.hasOwnProperty("managerName")
+        } else {
+            return false
+        }
     } else {
-        return false
+        throw Error("No internet connection")
     }
 }
 
@@ -45,20 +73,38 @@ export const fillManagerData = async (managerData: {
 }) => {
     const isConnected = await NetInfo.fetch().then(state => state.isConnected);
     if (isConnected) {
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"));
+            }, TIMEOUT_MILLIS)
+        });
+
         const doc = firestore().collection("users").doc(auth.currentUser?.uid)
-        await doc.update(managerData)
+        const updatePromise = doc.update(managerData)
+        await Promise.race([updatePromise, timeoutPromise]);
     } else {
         throw Error("No internet connection")
     }
 }
 
 export const getAllCharities = async (uid: string) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise<QuerySnapshot>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"));
+            }, TIMEOUT_MILLIS)
+        });
+        const getPromise = repoFirestore.collection("charities").where("creatorid", "==", uid).get()
 
-    const docs = await firestore().collection("charities").where("creatorid", "==", uid).get()
-    if (!docs.empty) {
-        return docs.docs.map(value => value.data() as CharityModel)
+        const docs = await Promise.race([getPromise, timeoutPromise]);
+        if (!docs.empty) {
+            return docs.docs.map(value => value.data() as CharityModel)
+        } else {
+            return []
+        }
     } else {
-        return []
+        throw Error("No internet connection")
     }
 }
 
@@ -74,7 +120,15 @@ export const updateConfirmedCharity = async (data: {
 }) => {
     const isConnected = await NetInfo.fetch().then(state => state.isConnected);
     if (isConnected) {
-        await firestore().collection("charities").doc(data.id).update(data)
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        });
+
+        const updatePromise = firestore().collection("charities").doc(data.id).update(data);
+
+        await Promise.race([updatePromise, timeoutPromise]);
     } else {
         throw Error("No internet connection")
     }
@@ -124,16 +178,31 @@ export const createPostRequest = async (data: {
 }) => {
     const isConnected = await NetInfo.fetch().then(state => state.isConnected);
     if (isConnected) {
+        const timeoutPromise = new Promise<[string[] | undefined, string[] | undefined]>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, 15000)
+        });
         const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
         const postRef = firestore().collection("campaigns").doc(data.campaignID).collection("posts").doc()
-        const [files, images] = await Promise.all([data.post.documents && uploadFiles(data.post.documents, data.campaignID),
+        const filesImagesPromise = Promise.all([data.post.documents && uploadFiles(data.post.documents, data.campaignID),
             data.post.images && uploadPhotos(data.post.images, data.campaignID)])
+        const [files, images] = await Promise.race([filesImagesPromise, timeoutPromise])
+
         const documents = files?.map((value, index) => {
             return {
                 uri: value,
                 name: data.post.documents!![index].name
-            }})
-        await postRef.set({...data.post, images: images, documents: documents})
+            }
+        })
+        const createPostPromise = postRef.set({...data.post, images: images, documents: documents})
+        const postTimeoutPromise = new Promise<[string[] | undefined, string[] | undefined]>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        });
+        await Promise.race([postTimeoutPromise, createPostPromise])
+
         const post = await postRef.get()
         return {...post.data(), date: formatter.format(post.data()!!.date.toDate())} as PostRemoteModel
     } else {
@@ -148,12 +217,18 @@ export const requestCreateCampaign = async (data: {
 }) => {
     const isConnected = await NetInfo.fetch().then(state => state.isConnected);
     if (isConnected) {
+        const timeoutPromise = new Promise<[string[] | undefined, string[] | undefined]>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, 15000)
+        });
         const batch = firestore().batch()
         if (data.documentID) {
             const campaignRef = firestore().collection("campaigns").doc(data.documentID)
-
-            const [files, images] = await Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
+            const filesImagesPromise = Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
                 data.pinnedPost.images && uploadPhotos(data.pinnedPost.images, campaignRef.id)])
+
+            const [files, images] = await Promise.race([timeoutPromise, filesImagesPromise])
 
             batch.update(campaignRef, data.campaign)
             const postRef = firestore().collection("campaigns").doc(campaignRef.id).collection("posts").doc()
@@ -161,15 +236,22 @@ export const requestCreateCampaign = async (data: {
                 return {
                     uri: value,
                     name: data.pinnedPost.documents!![index].name
-                }})
+                }
+            })
             batch.set(postRef, {...data.pinnedPost, images: images, documents: documents, id: postRef.id})
-            await batch.commit()
+            const batchTimeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error("Request timed out"))
+                }, TIMEOUT_MILLIS)
+            });
+            await Promise.race([batchTimeoutPromise, batch.commit()])
             return {...data.campaign, id: campaignRef.id} as CampaignModel
         } else {
             const campaignRef = firestore().collection("campaigns").doc()
 
-            const [files, images] = await Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
+            const filesImagesPromise = Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
                 data.pinnedPost.images && uploadPhotos(data.pinnedPost.images, campaignRef.id)])
+            const [files, images] = await Promise.race([timeoutPromise, filesImagesPromise])
 
             batch.set(campaignRef, data.campaign)
             const postRef = firestore().collection("campaigns").doc(campaignRef.id).collection("posts").doc()
@@ -177,9 +259,15 @@ export const requestCreateCampaign = async (data: {
                 return {
                     uri: value,
                     name: data.pinnedPost.documents!![index].name
-                }})
+                }
+            })
             batch.set(postRef, {...data.pinnedPost, images: images, documents: documents, id: postRef.id})
-            await batch.commit()
+            const batchTimeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error("Request timed out"))
+                }, TIMEOUT_MILLIS)
+            });
+            await Promise.race([batchTimeoutPromise, batch.commit()])
             return {...data.campaign, id: campaignRef.id} as CampaignModel
         }
     } else {
@@ -192,9 +280,13 @@ export const requestGetCampaigns = async (data: {
 }) => {
     const isConnected = await NetInfo.fetch().then(state => state.isConnected);
     if (isConnected) {
-
-        const snapshot = await firestore().collection("campaigns").where("parentcharity", "==", data.charityID).get()
-
+        const timeoutPromise = new Promise<QuerySnapshot>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        });
+        const snapshotPromise = firestore().collection("campaigns").where("parentcharity", "==", data.charityID).get()
+        const snapshot = await Promise.race([timeoutPromise, snapshotPromise])
         if (!snapshot.empty) {
             return snapshot.docs.map(value => {
                 return {...value.data(), id: value.id} as CampaignModel
@@ -210,10 +302,16 @@ export const requestGetCampaigns = async (data: {
 export const getPostsRequest = async (data: { campaignID: string }) => {
     const isConnected = await NetInfo.fetch().then(state => state.isConnected);
     if (isConnected) {
+        const timeoutPromise = new Promise<QuerySnapshot>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        });
         const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
-        const snapshot = await firestore().collection("campaigns").doc(data.campaignID).collection("posts")
+        const snapshotPromise = firestore().collection("campaigns").doc(data.campaignID).collection("posts")
             .orderBy("date", "desc")
             .get()
+        const snapshot = await Promise.race([timeoutPromise, snapshotPromise])
         if (!snapshot.empty) {
             return snapshot.docs.map(value => {
                 return {...value.data(), date: formatter.format(value.data().date.toDate())} as PostRemoteModel
