@@ -84,6 +84,18 @@ export default function CharityCreationScreen({route: {params: {charity: existin
         })
     }
 
+    const handleOgrnChange = (text: string) => {
+        if (/^\d+$/.test(text) || text === '') {
+            setOgrn(text);
+        }
+    };
+
+    const handleEgrulChange = (text: string) => {
+        if (/^\d+$/.test(text) || text === '') {
+            setEgrul(text);
+        }
+    };
+
     const formValid = () => {
         return name.length != 0 &&
             briefDesc.length != 0 &&
@@ -91,8 +103,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
             social.length != 0 &&
             checkedTagsCount != 0 &&
             fullName.length != 0 &&
-            ogrn.length != 0 &&
-            egrul.length != 0 &&
+            (selected[0] !== 2 || (ogrn.length == 13 && egrul.length == 15)) &&
             managerContact.length != 0
     }
 
@@ -234,20 +245,28 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                 autoCorrect={false}
                 onChangeText={(text) => setFullName(text)}
             />
-            <TextInput
-                style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                value={ogrn}
-                placeholder={"ОГРН"}
-                autoCorrect={false}
-                onChangeText={(text) => setOgrn(text)}
-            />
-            <TextInput
-                style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                value={egrul}
-                placeholder={"ЕГРЮЛ"}
-                autoCorrect={false}
-                onChangeText={(text) => setEgrul(text)}
-            />
+            {
+                selected[0] === 2 && (
+                    <>
+                        <TextInput
+                            style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
+                            value={ogrn}
+                            placeholder={"ОГРН"}
+                            autoCorrect={false}
+                            maxLength={13}
+                            onChangeText={(text) => handleOgrnChange(text)}
+                        />
+                        <TextInput
+                            style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
+                            value={egrul}
+                            placeholder={"ЕГРЮЛ"}
+                            autoCorrect={false}
+                            maxLength={15}
+                            onChangeText={(text) => handleEgrulChange(text)}
+                        />
+                    </>
+                )
+            }
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                 value={managerContact}
