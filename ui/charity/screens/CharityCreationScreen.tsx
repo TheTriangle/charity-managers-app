@@ -6,7 +6,7 @@ import {
     TextInput,
     View,
 } from "react-native";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ButtonRow from "../../profile/components/ButtonRow";
 import {textInput} from "../../../styles/styles";
 import {SvgXml} from "react-native-svg";
@@ -19,8 +19,6 @@ import {PRIMARY_COLOR} from "../../../styles/colors";
 import {DefaultTheme, useNavigation} from "@react-navigation/native";
 import Button from "../../utils/Button";
 import {useSafeAreaFrame} from "react-native-safe-area-context";
-import {pickPlace} from 'react-native-place-picker';
-import {PlacePickerResults} from "react-native-place-picker/src/interfaces";
 import {CharityModel} from "../../../data/model/СharityModel";
 import {auth} from "../../../firebase/config";
 import {useAppDispatch} from "../../../hooks";
@@ -34,7 +32,7 @@ import {CreateCharityProps} from "../../../Navigate";
 const reactNativeTagSelect = require("react-native-tag-select")
 const TagSelect = reactNativeTagSelect.TagSelect
 
-export default function CharityCreationScreen({route: {params: {charity: existingCharity}}}: CreateCharityProps) {
+export default function CharityCreationScreen({route: {params: {charity: existingCharity, location, id}}}: CreateCharityProps) {
 
     const btns = [{id: 1, title: "Частный сбор"}, {id: 2, title: "НКО"}]
     const [selected, setSelected] = useState<number[]>(existingCharity ? existingCharity.organization ? [2] : [1] : [1])
@@ -59,6 +57,13 @@ export default function CharityCreationScreen({route: {params: {charity: existin
     const state = useSelector(selectCharitiesState)
     const nav = useNavigation<any>()
 
+    useEffect(() => {
+        if (location) {
+            setSelectedCoords({latitude: location.latitude, longitude: location.longitude})
+            setSelectedAddress(location.address)
+        }
+    }, [location]);
+
     const getSelectedTags = () => {
         return ref.current!.itemsSelected as TagModel[]
     }
@@ -67,22 +72,6 @@ export default function CharityCreationScreen({route: {params: {charity: existin
     const handleButtonPress = (buttonId: number) => {
         setSelected([buttonId])
     };
-
-    const selectLocation = () => {
-        pickPlace({
-            title: "Выберите адрес",
-            locale: "ru-RU",
-            initialCoordinates: {latitude: 55.753629, longitude: 37.621556},
-            enableUserLocation: false,
-            searchPlaceholder: "Поиск...",
-            color: PRIMARY_COLOR
-        }).then((data: PlacePickerResults) => {
-            setSelectedAddress(`${data.address?.city ? `г. ${data.address?.city},` : ""} ${data.address?.streetName ? `${data.address?.streetName},` : ""} ${data.address?.name}`)
-            setSelectedCoords(data.coordinate)
-        }).catch(error => {
-            console.log(error)
-        })
-    }
 
     const handleOgrnChange = (text: string) => {
         if (/^\d+$/.test(text) || text === '') {
@@ -127,8 +116,8 @@ export default function CharityCreationScreen({route: {params: {charity: existin
             url: social
         }
         try {
-            if (existingCharity) {
-                charity.id = existingCharity.id
+            if (id) {
+                charity.id = id
                 await dispatch(editCharity(charity)).unwrap()
             } else {
                 await dispatch(createCharity(charity)).unwrap()
@@ -207,7 +196,12 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                 marginVertical: marginVertical
             }}>
                 <SvgXml xml={iconGeo} style={{marginRight: "1%"}}/>
-                <Pressable style={{flex: 1, height: "100%"}} onPress={() => {selectLocation()}}>
+                <Pressable style={{flex: 1, height: "100%"}} onPress={() => nav.navigate("LocationScreen", {
+                    latitude: selectedCoords?.latitude,
+                    longitude: selectedCoords?.longitude,
+                    edit: false,
+                    id: id
+                })}>
                     <TextInput
                         style={{...styles.textInput, flex: 1, height: "100%", marginVertical: 0, color: "black"}}
                         placeholder={"Адрес (необязательно)"}

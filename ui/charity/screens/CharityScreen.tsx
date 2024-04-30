@@ -23,7 +23,7 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
     const charity = state.confirmedCharities.find(charity => charity.id == charityID)!!
     const dispatch = useAppDispatch()
     const onEditClick = () => {
-        nav.navigate("CharityEdit", {charityID: charityID})
+        nav.navigate("CharityEdit", {charityID: charityID, id: charityID})
     }
 
     const fetchCampaigns = async () => {
