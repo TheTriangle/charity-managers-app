@@ -41,14 +41,14 @@ interface initialStateType {
     loading: boolean,
     error: string | undefined | null,
     authorized: boolean,
-    hasProfile: boolean,
+    hasProfile: boolean | undefined,
 }
 
 const initialState: initialStateType = {
     loading: false,
     error: null,
     authorized: false,
-    hasProfile: false
+    hasProfile: undefined
 }
 
 const authSlice = createSlice({
@@ -106,6 +106,7 @@ const authSlice = createSlice({
             })
             .addCase(signOut.fulfilled, (state, action) => {
                 state.authorized = false
+                state.hasProfile = undefined
                 state.loading = false;
             })
             .addCase(signOut.rejected, (state, action) => {

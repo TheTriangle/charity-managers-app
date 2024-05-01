@@ -204,7 +204,7 @@ export default function Navigate() {
 
     return <NavigationContainer>
         <MainStack.Navigator>
-            {!authState.authorized ?
+            {!authState.authorized || authState.hasProfile === undefined ?
                 <>
                     <MainStack.Screen name="Login" component={AuthScreen} options={loginOptions}/>
                 </>
