@@ -210,8 +210,31 @@ export const createPostRequest = async (data: {
     }
 }
 
+export const requestGetPaymentConfirmation = async (campaignID: string) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise<DocumentSnapshot>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, 10000)
+        });
+        const campaignPromise = firestore().collection("campaigns").doc(campaignID).get()
+        const campaignDoc = await Promise.race([campaignPromise, timeoutPromise])
+        if (campaignDoc.exists) {
+            if (campaignDoc.data()!.confirmednotifications === undefined) {
+                return false
+            }
+            return campaignDoc.data()!.confirmednotifications as boolean
+        } else {
+            throw Error("No campaign found")
+        }
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
 export const requestCreateCampaign = async (data: {
-    documentID?: string
+    documentID: string
     campaign: CampaignModel
     pinnedPost: PostLocalModel
 }) => {
@@ -223,53 +246,30 @@ export const requestCreateCampaign = async (data: {
             }, 15000)
         });
         const batch = firestore().batch()
-        if (data.documentID) {
-            const campaignRef = firestore().collection("campaigns").doc(data.documentID)
-            const filesImagesPromise = Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
-                data.pinnedPost.images && uploadPhotos(data.pinnedPost.images, campaignRef.id)])
 
-            const [files, images] = await Promise.race([timeoutPromise, filesImagesPromise])
+        const campaignRef = firestore().collection("campaigns").doc(data.documentID)
+        const filesImagesPromise = Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
+            data.pinnedPost.images && uploadPhotos(data.pinnedPost.images, campaignRef.id)])
 
-            batch.update(campaignRef, data.campaign)
-            const postRef = firestore().collection("campaigns").doc(campaignRef.id).collection("posts").doc()
-            const documents = files?.map((value, index) => {
-                return {
-                    uri: value,
-                    name: data.pinnedPost.documents!![index].name
-                }
-            })
-            batch.set(postRef, {...data.pinnedPost, images: images, documents: documents, id: postRef.id})
-            const batchTimeoutPromise = new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    reject(new Error("Request timed out"))
-                }, TIMEOUT_MILLIS)
-            });
-            await Promise.race([batchTimeoutPromise, batch.commit()])
-            return {...data.campaign, id: campaignRef.id} as CampaignModel
-        } else {
-            const campaignRef = firestore().collection("campaigns").doc()
+        const [files, images] = await Promise.race([timeoutPromise, filesImagesPromise])
 
-            const filesImagesPromise = Promise.all([data.pinnedPost.documents && uploadFiles(data.pinnedPost.documents, campaignRef.id),
-                data.pinnedPost.images && uploadPhotos(data.pinnedPost.images, campaignRef.id)])
-            const [files, images] = await Promise.race([timeoutPromise, filesImagesPromise])
+        batch.update(campaignRef, data.campaign)
+        const postRef = firestore().collection("campaigns").doc(campaignRef.id).collection("posts").doc()
+        const documents = files?.map((value, index) => {
+            return {
+                uri: value,
+                name: data.pinnedPost.documents!![index].name
+            }
+        })
+        batch.set(postRef, {...data.pinnedPost, images: images, documents: documents, id: postRef.id})
+        const batchTimeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        });
+        await Promise.race([batchTimeoutPromise, batch.commit()])
+        return {...data.campaign, id: campaignRef.id} as CampaignModel
 
-            batch.set(campaignRef, data.campaign)
-            const postRef = firestore().collection("campaigns").doc(campaignRef.id).collection("posts").doc()
-            const documents = files?.map((value, index) => {
-                return {
-                    uri: value,
-                    name: data.pinnedPost.documents!![index].name
-                }
-            })
-            batch.set(postRef, {...data.pinnedPost, images: images, documents: documents, id: postRef.id})
-            const batchTimeoutPromise = new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    reject(new Error("Request timed out"))
-                }, TIMEOUT_MILLIS)
-            });
-            await Promise.race([batchTimeoutPromise, batch.commit()])
-            return {...data.campaign, id: campaignRef.id} as CampaignModel
-        }
     } else {
         throw Error("No internet connection")
     }
