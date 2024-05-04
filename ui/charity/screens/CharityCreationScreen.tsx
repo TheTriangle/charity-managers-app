@@ -6,7 +6,7 @@ import {
     TextInput,
     View,
 } from "react-native";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ButtonRow from "../../profile/components/ButtonRow";
 import {textInput} from "../../../styles/styles";
 import {SvgXml} from "react-native-svg";
@@ -19,8 +19,6 @@ import {PRIMARY_COLOR} from "../../../styles/colors";
 import {DefaultTheme, useNavigation} from "@react-navigation/native";
 import Button from "../../utils/Button";
 import {useSafeAreaFrame} from "react-native-safe-area-context";
-import {pickPlace} from 'react-native-place-picker';
-import {PlacePickerResults} from "react-native-place-picker/src/interfaces";
 import {CharityModel} from "../../../data/model/СharityModel";
 import {auth} from "../../../firebase/config";
 import {useAppDispatch} from "../../../hooks";
@@ -34,7 +32,7 @@ import {CreateCharityProps} from "../../../Navigate";
 const reactNativeTagSelect = require("react-native-tag-select")
 const TagSelect = reactNativeTagSelect.TagSelect
 
-export default function CharityCreationScreen({route: {params: {charity: existingCharity}}}: CreateCharityProps) {
+export default function CharityCreationScreen({route: {params: {charity: existingCharity, location, id}}}: CreateCharityProps) {
 
     const btns = [{id: 1, title: "Частный сбор"}, {id: 2, title: "НКО"}]
     const [selected, setSelected] = useState<number[]>(existingCharity ? existingCharity.organization ? [2] : [1] : [1])
@@ -59,6 +57,13 @@ export default function CharityCreationScreen({route: {params: {charity: existin
     const state = useSelector(selectCharitiesState)
     const nav = useNavigation<any>()
 
+    useEffect(() => {
+        if (location) {
+            setSelectedCoords({latitude: location.latitude, longitude: location.longitude})
+            setSelectedAddress(location.address)
+        }
+    }, [location]);
+
     const getSelectedTags = () => {
         return ref.current!.itemsSelected as TagModel[]
     }
@@ -68,21 +73,17 @@ export default function CharityCreationScreen({route: {params: {charity: existin
         setSelected([buttonId])
     };
 
-    const selectLocation = () => {
-        pickPlace({
-            title: "Выберите адрес",
-            locale: "ru-RU",
-            initialCoordinates: {latitude: 55.753629, longitude: 37.621556},
-            enableUserLocation: false,
-            searchPlaceholder: "Поиск...",
-            color: PRIMARY_COLOR
-        }).then((data: PlacePickerResults) => {
-            setSelectedAddress(`${data.address?.city ? `г. ${data.address?.city},` : ""} ${data.address?.streetName ? `${data.address?.streetName},` : ""} ${data.address?.name}`)
-            setSelectedCoords(data.coordinate)
-        }).catch(error => {
-            console.log(error)
-        })
-    }
+    const handleOgrnChange = (text: string) => {
+        if (/^\d+$/.test(text) || text === '') {
+            setOgrn(text);
+        }
+    };
+
+    const handleEgrulChange = (text: string) => {
+        if (/^\d+$/.test(text) || text === '') {
+            setEgrul(text);
+        }
+    };
 
     const formValid = () => {
         return name.length != 0 &&
@@ -91,8 +92,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
             social.length != 0 &&
             checkedTagsCount != 0 &&
             fullName.length != 0 &&
-            ogrn.length != 0 &&
-            egrul.length != 0 &&
+            (selected[0] !== 2 || (ogrn.length == 13 && egrul.length == 15)) &&
             managerContact.length != 0
     }
 
@@ -116,8 +116,8 @@ export default function CharityCreationScreen({route: {params: {charity: existin
             url: social
         }
         try {
-            if (existingCharity) {
-                charity.id = existingCharity.id
+            if (id) {
+                charity.id = id
                 await dispatch(editCharity(charity)).unwrap()
             } else {
                 await dispatch(createCharity(charity)).unwrap()
@@ -196,7 +196,12 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                 marginVertical: marginVertical
             }}>
                 <SvgXml xml={iconGeo} style={{marginRight: "1%"}}/>
-                <Pressable style={{flex: 1, height: "100%"}} onPress={() => {selectLocation()}}>
+                <Pressable style={{flex: 1, height: "100%"}} onPress={() => nav.navigate("LocationScreen", {
+                    latitude: selectedCoords?.latitude,
+                    longitude: selectedCoords?.longitude,
+                    edit: false,
+                    id: id
+                })}>
                     <TextInput
                         style={{...styles.textInput, flex: 1, height: "100%", marginVertical: 0, color: "black"}}
                         placeholder={"Адрес (необязательно)"}
@@ -234,20 +239,28 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                 autoCorrect={false}
                 onChangeText={(text) => setFullName(text)}
             />
-            <TextInput
-                style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                value={ogrn}
-                placeholder={"ОГРН"}
-                autoCorrect={false}
-                onChangeText={(text) => setOgrn(text)}
-            />
-            <TextInput
-                style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                value={egrul}
-                placeholder={"ЕГРЮЛ"}
-                autoCorrect={false}
-                onChangeText={(text) => setEgrul(text)}
-            />
+            {
+                selected[0] === 2 && (
+                    <>
+                        <TextInput
+                            style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
+                            value={ogrn}
+                            placeholder={"ОГРН"}
+                            autoCorrect={false}
+                            maxLength={13}
+                            onChangeText={(text) => handleOgrnChange(text)}
+                        />
+                        <TextInput
+                            style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
+                            value={egrul}
+                            placeholder={"ЕГРЮЛ"}
+                            autoCorrect={false}
+                            maxLength={15}
+                            onChangeText={(text) => handleEgrulChange(text)}
+                        />
+                    </>
+                )
+            }
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                 value={managerContact}

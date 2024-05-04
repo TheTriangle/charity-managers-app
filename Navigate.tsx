@@ -20,6 +20,8 @@ import {CampaignModel} from "./data/model/CampaignModel";
 import CampaignScreen from "./ui/campaign/screens/CampaignScreen";
 import PostCreationScreen from "./ui/campaign/screens/PostCreationScreen";
 import FinishCampaignScreen from "./ui/campaign/screens/FinishCampaignScreen";
+import {LocationModel} from "react-native-location-view/interface/LocationModel";
+import CharityLocationScreen from "./ui/charity/screens/CharityLocationScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -100,13 +102,23 @@ const ProfileStackNavigator = () => {
 type OrganizationsStackParamList = {
     AllOrganizations: undefined,
     CreateCharity: {
-        charity?: CharityModel
+        charity?: CharityModel,
+        location?: LocationModel,
+        id?: string
+    },
+    LocationScreen: {
+        latitude?: number
+        longitude?: number,
+        edit: boolean,
+        id?: string
     },
     Charity: {
         charityID: string
     },
     CharityEdit: {
-        charityID: string
+        charityID: string,
+        location?: LocationModel,
+        id: string
     },
     CreateCampaign: {
         charityID: string
@@ -137,13 +149,14 @@ export type PostCreationProps = StackScreenProps<OrganizationsStackParamList, 'C
 
 export type FinishCampaignProps = StackScreenProps<OrganizationsStackParamList, 'FinishCampaign'>;
 
+export type LocationProps = StackScreenProps<OrganizationsStackParamList, "LocationScreen">
 
 
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
 // @ts-ignore
 const OrganizationsStackNavigator = ({ navigation, route }) => {
-    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign"];
+    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign", "LocationScreen"];
     React.useLayoutEffect(() => {
         // const routeName = getFocusedRouteNameFromRoute(route);
         if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route) as string)){
@@ -155,6 +168,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
     return <OrganizationsStack.Navigator>
         <OrganizationsStack.Screen name={"AllOrganizations"} component={OrganizationsScreen} options={organizationsOptions}/>
         <OrganizationsStack.Screen name={"CreateCharity"} component={CharityCreationScreen} options={creationOptions}/>
+        <OrganizationsStack.Screen name={"LocationScreen"} component={CharityLocationScreen} options={creationOptions}/>
         <OrganizationsStack.Screen name={"Charity"} component={CharityScreen} options={charityOptions}/>
         <OrganizationsStack.Screen name={"CharityEdit"} component={CharityEditScreen} options={charityEditOptions}/>
         <OrganizationsStack.Screen name={"CreateCampaign"} component={CampaignCreationScreen} options={campaignCreationOptions}/>
@@ -190,7 +204,7 @@ export default function Navigate() {
 
     return <NavigationContainer>
         <MainStack.Navigator>
-            {!authState.authorized ?
+            {!authState.authorized || authState.hasProfile === undefined ?
                 <>
                     <MainStack.Screen name="Login" component={AuthScreen} options={loginOptions}/>
                 </>

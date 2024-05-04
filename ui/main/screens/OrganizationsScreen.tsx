@@ -2,7 +2,7 @@ import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import PagerTitle from "../components/PagerTitle";
 import React, {useEffect, useRef, useState} from "react";
 import {BACKGROUND_COLOR, PRIMARY_COLOR} from "../../../styles/colors";
-import {FlatList} from "react-native-gesture-handler";
+import {FlatList, RefreshControl} from "react-native-gesture-handler";
 import CharityListItem from "../../charity/components/CharityListItem";
 import PagerView from "react-native-pager-view";
 import {useAppDispatch} from "../../../hooks";
@@ -13,6 +13,7 @@ import Button from "../../utils/Button";
 import {AntDesign} from '@expo/vector-icons';
 import {useIsFocused, useNavigation} from "@react-navigation/native";
 import {clearCampaigns} from "../../../redux/slices/campaignsSlice";
+import Toast from "react-native-simple-toast";
 
 export default function OrganizationsScreen() {
     const [page, setPage] = useState<number>(0)
@@ -27,8 +28,16 @@ export default function OrganizationsScreen() {
     }, [isFocused]);
 
     useEffect(() => {
-        dispatch(getCharities())
+        fetchCharities()
     }, []);
+
+    const fetchCharities = async () => {
+        try {
+            await  dispatch(getCharities()).unwrap()
+        } catch (e) {
+            Toast.show("Не удалось загрузить организации, попробуйте позже", Toast.SHORT)
+        }
+    }
 
     const changePage = (pageNum: number) => {
         setPage(pageNum)
@@ -66,6 +75,10 @@ export default function OrganizationsScreen() {
                                                                               }}/>
                                                   })}
                                                   ItemSeparatorComponent={() => <View style={{height: 20}}/>}
+                                                  refreshControl={<RefreshControl
+                                                      colors={["#9Bd35A", "#689F38"]}
+                                                      refreshing={state.loading}
+                                                      onRefresh={fetchCharities}/>}
                                         />
                                 }
                             </View>
@@ -82,10 +95,14 @@ export default function OrganizationsScreen() {
                                                       renderItem={(({item}) => {
                                                           return <CharityListItem charity={item}
                                                                                   onPress={(charity) => {
-                                                                                      nav.navigate("CreateCharity", {charity: charity})
+                                                                                      nav.navigate("CreateCharity", {charity: charity, id: charity.id})
                                                                                   }}/>
                                                       })}
                                                       ItemSeparatorComponent={() => <View style={{height: 20}}/>}
+                                                      refreshControl={<RefreshControl
+                                                          colors={["#9Bd35A", "#689F38"]}
+                                                          refreshing={state.loading}
+                                                          onRefresh={fetchCharities}/>}
                                             />
                                             <AntDesign style={{position: "absolute", right: 10, bottom: 10}}
                                                        name="pluscircle" size={54} color={PRIMARY_COLOR} onPress={() => nav.navigate("CreateCharity", {})}/>
@@ -97,7 +114,7 @@ export default function OrganizationsScreen() {
                         :
                         <View style={{flex: 1, justifyContent: "center"}}>
                             <Text style={[styles.hintText, {alignSelf: "center"}]}>Ошибка получения данных</Text>
-                            <Button onPress={() => dispatch(getCharities())} text={"Попробовать снова"}/>
+                            <Button onPress={fetchCharities} text={"Попробовать снова"}/>
                         </View>
             }
         </View>

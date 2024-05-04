@@ -135,6 +135,7 @@ export default function FinishCampaignScreen({route: {params: {campaign}}}: Fini
                 style={{...styles.textInput, height: textInputHeight}}
                 placeholder={"Название"}
                 autoCorrect={false}
+                maxLength={70}
                 onChangeText={(text) => setTitle(text)}
             />
 

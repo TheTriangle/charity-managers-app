@@ -33,7 +33,7 @@ import {CampaignModel} from "../../../data/model/CampaignModel";
 import {PostLocalModel} from "../../../data/model/PostLocalModel";
 import firebase from "firebase/compat";
 import FieldValue = firebase.firestore.FieldValue;
-import {createCampaign} from "../../../redux/slices/campaignsSlice";
+import {createCampaign, getPaymentConfirmation, requestCreatePayment} from "../../../redux/slices/campaignsSlice";
 
 
 const reactNativeTagSelect = require("react-native-tag-select")
@@ -54,9 +54,10 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
     const [amount, setAmount] = useState("")
     const [showModal, setShowModal] = useState(false)
     const [images, setImages] = useState(["", "", "", ""])
-    const [files, setFiles] = useState<{uri: string, name: string}[]>([])
+    const [files, setFiles] = useState<{ uri: string, name: string }[]>([])
     const [docID, setDocID] = useState<string | undefined>(undefined)
     const [notificationsConfirmed, setNotificationsConfirmed] = useState(false)
+    const [loadingTitle, setLoadingTitle] = useState("Создание")
 
     const ref = useRef<typeof TagSelect>()
     const screenHeight = useSafeAreaFrame().height;
@@ -104,14 +105,15 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
         filteredImages.length !== 0 ? (post.images = filteredImages) : post.images = []
 
 
-
         try {
             if (notificationsConfirmed && docID) {
+                setLoadingTitle("Создание")
                 await dispatch(createCampaign({documentID: docID, campaign: campaign, pinnedPost: post})).unwrap()
+                nav.pop()
             } else {
-                await dispatch(createCampaign({campaign: campaign, pinnedPost: post})).unwrap()
+                Toast.show("Для создания кампании необходимо указать платежные данные", Toast.LONG)
             }
-            nav.pop()
+
         } catch (e) {
             console.log(e)
             Toast.show("Не создать кампанию", Toast.LONG)
@@ -121,14 +123,63 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
     const formValid = () => {
         return fullDesc.length != 0 &&
-            title.length != 0 && (!isNaN(Number(amount)) || amount.length == 0)
+            title.length != 0 && (!isNaN(Number(amount)) || amount.length == 0) && notificationsConfirmed
     }
+
+    const handlePaymentChange = (text: string) => {
+        if (/^\d+$/.test(text) || text === '') {
+            setPaymentAccount(text);
+        }
+    };
 
     const handleAmountChange = (text: string) => {
         if (/^\d+$/.test(text) || text === '') {
             setAmount(text);
         }
     };
+
+    const createPayment = async () => {
+        if (!/^\d{16}$/.test(paymentAccount)) {
+            Toast.show("Номер кошелька должен состоять из 16 цифр", Toast.LONG);
+            return;
+        }
+        if (secretKey.length !== 24) {
+            Toast.show("Секретный ключ должен состоять из 24 символов", Toast.LONG);
+            return;
+        }
+
+        try {
+            setNotificationsConfirmed(false)
+            setLoadingTitle("Отправка")
+            const id = await dispatch(requestCreatePayment({secret: secretKey, yoomoney: paymentAccount})).unwrap()
+            setDocID(id)
+        } catch (e) {
+            console.log(e)
+            Toast.show("Не удалось отправить данные", Toast.LONG)
+        }
+    }
+
+    const getConfirmation = async () => {
+        try {
+
+            if (docID === undefined || docID.length == 0) {
+                Toast.show("Сначала необходимо отправить платежные данные", Toast.LONG)
+                return
+            }
+            setLoadingTitle("Проверка")
+            const confirmed = await dispatch(getPaymentConfirmation({campaign: docID})).unwrap()
+            setNotificationsConfirmed(confirmed)
+            if (confirmed) {
+                Toast.show("Кошелек успешно привязан!", Toast.SHORT)
+            } else {
+                Toast.show("Не удалось подтвердить кошелек, убедитесь, что уведомление ЮMoney отправлено", Toast.SHORT)
+            }
+
+        } catch (e) {
+            console.log(e)
+            Toast.show("Не удалось получить данные", Toast.LONG)
+        }
+    }
 
     const selectFiles = async () => {
         const res = await DocumentPicker.getDocumentAsync({type: 'application/pdf', multiple: false});
@@ -144,7 +195,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
     return <ScrollView>
         <Spinner
             visible={state.createLoading}
-            textContent={'Создание...'}
+            textContent={loadingTitle}
             textStyle={{color: "white"}}
         />
 
@@ -203,7 +254,8 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                 placeholder={"Кошелек"}
                 autoCorrect={false}
                 keyboardType={"numeric"}
-                onChangeText={(text) => setPaymentAccount(text)}
+                value={paymentAccount}
+                onChangeText={(text) => handlePaymentChange(text)}
             />
 
             <Text style={styles.title}>
@@ -235,24 +287,25 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                 onChangeText={(text) => setSecretKey(text)}
             />
 
-            <Button onPress={undefined} text={"Отправить"}
+            <Button onPress={createPayment} text={"Отправить"}
                     containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}}
                     textStyle={{fontSize: 14, paddingHorizontal: "10%"}}/>
 
             <Text style={{marginVertical: marginVertical}}>В разделе HTTP-Уведомления укажите следующий url и нажмите
                 “протестировать”:</Text>
-            <View style={{
+            {docID && <View style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
                 width: "100%",
                 marginBottom: marginVertical
             }}>
                 <Text style={hyperlink}
-                      onPress={() => copyToClipboard("donapp-d2378.web.app/12315231/callback")}>donapp-d2378.web.app/12315231/callback</Text>
-                <SvgXml xml={iconCopy} onPress={() => copyToClipboard("donapp-d2378.web.app/12315231/callback")}/>
-            </View>
+                      onPress={() => copyToClipboard(`https://us-central1-donapp-d2378.cloudfunctions.net/updatePayment/${docID}`)}>https://us-central1-donapp-d2378.cloudfunctions.net/updatePayment/{docID}</Text>
+                <SvgXml xml={iconCopy}
+                        onPress={() => copyToClipboard(`https://us-central1-donapp-d2378.cloudfunctions.net/updatePayment/${docID}`)}/>
+            </View>}
 
-            <Button onPress={undefined} text={"Проверить"}
+            <Button onPress={getConfirmation} text={"Проверить"}
                     containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}}
                     textStyle={{fontSize: 14, paddingHorizontal: "10%"}}/>
 
@@ -293,6 +346,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             <TextInput
                 style={{...styles.textInput, height: textInputHeight}}
                 placeholder={"Название"}
+                maxLength={70}
                 autoCorrect={false}
                 onChangeText={(text) => setTitle(text)}
             />
@@ -320,12 +374,13 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                                  onPress={selectFiles} text={"Добавить документ"}/>}
 
             {files.map((value, index) => {
-                    return <FileViewComponent key={index} containerStyle={{height: screenHeight * 0.06, marginVertical: marginVertical}}
-                                              onRemove={() => {
-                                                  const copy = [...files]
-                                                  copy.splice(index, 1)
-                                                  setFiles(copy )
-                                              }} text={value.name}/>
+                return <FileViewComponent key={index}
+                                          containerStyle={{height: screenHeight * 0.06, marginVertical: marginVertical}}
+                                          onRemove={() => {
+                                              const copy = [...files]
+                                              copy.splice(index, 1)
+                                              setFiles(copy)
+                                          }} text={value.name}/>
 
             })}
 

@@ -6,7 +6,7 @@ import {
     TextInput,
     View,
 } from "react-native";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {textInput} from "../../../styles/styles";
 import {SvgXml} from "react-native-svg";
 import {iconSocial} from "../../../assets/iconSocial";
@@ -18,18 +18,17 @@ import {PRIMARY_COLOR} from "../../../styles/colors";
 import {DefaultTheme, useNavigation} from "@react-navigation/native";
 import Button from "../../utils/Button";
 import {useSafeAreaFrame} from "react-native-safe-area-context";
-import {pickPlace} from 'react-native-place-picker';
-import {PlacePickerResults} from "react-native-place-picker/src/interfaces";
 import {useAppDispatch} from "../../../hooks";
 import Spinner from "react-native-loading-spinner-overlay";
 import {CharityEditProps} from "../../../Navigate";
 import {editConfirmedCharity} from "../../../redux/slices/charitiesSlice";
 import {isFirebaseError} from "../../../utils/isFirebaseError";
 import Toast from "react-native-simple-toast";
+
 const reactNativeTagSelect = require("react-native-tag-select")
 const TagSelect = reactNativeTagSelect.TagSelect
 
-export default function CharityEditScreen({route: {params: {charityID}}}: CharityEditProps) {
+export default function CharityEditScreen({route: {params: {charityID, location, id}}}: CharityEditProps) {
     const state = useSelector(selectCharitiesState)
     const charity = state.confirmedCharities.find(charity => charity.id == charityID)!!
 
@@ -53,23 +52,14 @@ export default function CharityEditScreen({route: {params: {charityID}}}: Charit
         return ref.current!.itemsSelected as TagModel[]
     }
 
-    const resources = useSelector(selectResourceState)
+    useEffect(() => {
+        if (location) {
+            setSelectedCoords({latitude: location.latitude, longitude: location.longitude})
+            setSelectedAddress(location.address)
+        }
+    }, [location]);
 
-    const selectLocation = () => {
-        pickPlace({
-            title: "Выберите адрес",
-            locale: "ru-RU",
-            initialCoordinates: {latitude: 55.753629, longitude: 37.621556},
-            enableUserLocation: false,
-            searchPlaceholder: "Поиск...",
-            color: PRIMARY_COLOR
-        }).then((data: PlacePickerResults) => {
-            setSelectedAddress(`${data.address?.city ? `г. ${data.address?.city},` : ""} ${data.address?.streetName ? `${data.address?.streetName},` : ""} ${data.address?.name}`)
-            setSelectedCoords(data.coordinate)
-        }).catch(error => {
-            console.log(error)
-        })
-    }
+    const resources = useSelector(selectResourceState)
 
     const formValid = () => {
         return briefDesc.length != 0 &&
@@ -81,7 +71,7 @@ export default function CharityEditScreen({route: {params: {charityID}}}: Charit
 
     const editCharity = async () => {
         const charity = {
-            id: charityID,
+            id: id,
             address: selectedAddress,
             briefDescription: briefDesc,
             description: fullDesc,
@@ -158,9 +148,12 @@ export default function CharityEditScreen({route: {params: {charityID}}}: Charit
                 marginVertical: marginVertical
             }}>
                 <SvgXml xml={iconGeo} style={{marginRight: "1%"}}/>
-                <Pressable style={{flex: 1, height: "100%"}} onPress={() => {
-                    selectLocation()
-                }}>
+                <Pressable style={{flex: 1, height: "100%"}} onPress={() => nav.navigate("LocationScreen", {
+                    latitude: selectedCoords?.latitude,
+                    longitude: selectedCoords?.longitude,
+                    edit: true,
+                    id: id
+                })}>
                     <TextInput
                         style={{...styles.textInput, flex: 1, height: "100%", marginVertical: 0, color: "black"}}
                         placeholder={"Адрес (необязательно)"}

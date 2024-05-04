@@ -98,6 +98,7 @@ export default function PostCreationScreen({route: {params: {campaignID}}}: Post
                 style={{...styles.textInput, height: "5%"}}
                 placeholder={"Название"}
                 autoCorrect={false}
+                maxLength={70}
                 onChangeText={(text) => setTitle(text)}
             />
 
