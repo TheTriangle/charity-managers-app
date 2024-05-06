@@ -10,6 +10,7 @@ import Toast from "react-native-simple-toast";
 import {isFirebaseError} from "./utils/isFirebaseError";
 import NetInfo from "@react-native-community/netinfo";
 import {BUTTON_ACTIVE_COLOR} from "./styles/colors";
+import {KeyboardProvider} from "react-native-keyboard-controller";
 
 
 SplashScreen.preventAutoHideAsync();
@@ -28,7 +29,7 @@ export default function App() {
                     store.dispatch(authorize())
                 } catch (e) {
                     if (isFirebaseError(e)) {
-                        console.log(e.code)
+                        console.log("firebase error: " + e.code + " " + e.message)
                         if (e.code == "unavailable") {
                             setNoInternet(true)
                         }
@@ -95,9 +96,11 @@ export default function App() {
 
     return (
         <View style={{flex: 1}} onLayout={onLayoutRootView}>
-            <Provider store={store}>
-                <MainStack/>
-            </Provider>
+            <KeyboardProvider>
+                <Provider store={store}>
+                    <MainStack/>
+                </Provider>
+            </KeyboardProvider>
         </View>
 
     );

@@ -10,10 +10,13 @@ import firestore = firebase.firestore;
 import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
 import QuerySnapshot = firebase.firestore.QuerySnapshot;
 import DocumentSnapshot = firebase.firestore.DocumentSnapshot;
+import {CommentModel} from "../model/CommentModel";
 
 let repoFirestore = firestore()
 
 const TIMEOUT_MILLIS = 10000
+
+const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
 
 export const userExists = async (
     email: string,
@@ -183,7 +186,6 @@ export const createPostRequest = async (data: {
                 reject(new Error("Request timed out"))
             }, 15000)
         });
-        const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
         const postRef = firestore().collection("campaigns").doc(data.campaignID).collection("posts").doc()
         const filesImagesPromise = Promise.all([data.post.documents && uploadFiles(data.post.documents, data.campaignID),
             data.post.images && uploadPhotos(data.post.images, data.campaignID)])
@@ -307,7 +309,6 @@ export const getPostsRequest = async (data: { campaignID: string }) => {
                 reject(new Error("Request timed out"))
             }, TIMEOUT_MILLIS)
         });
-        const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
         const snapshotPromise = firestore().collection("campaigns").doc(data.campaignID).collection("posts")
             .orderBy("date", "desc")
             .get()
@@ -315,6 +316,63 @@ export const getPostsRequest = async (data: { campaignID: string }) => {
         if (!snapshot.empty) {
             return snapshot.docs.map(value => {
                 return {...value.data(), date: formatter.format(value.data().date.toDate())} as PostRemoteModel
+            })
+        } else {
+            return []
+        }
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const requestCreateComment = async (data: {
+    campaignID: string
+    postID: string
+    comment: CommentModel
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise<[string[] | undefined, string[] | undefined]>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, 10000)
+        });
+
+        const commentPromise = firestore()
+            .collection("campaigns")
+            .doc(data.campaignID)
+            .collection("posts")
+            .doc(data.postID)
+            .collection("comments")
+            .add(data.comment)
+        await Promise.race([timeoutPromise, commentPromise])
+        return {...data.comment, date: formatter.format(new Date())}
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const getCommentsRequest = async (data: { postID: string, campaignID: string }) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise<QuerySnapshot>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        });
+        const formatter = new Intl.DateTimeFormat('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
+        const snapshotPromise = firestore()
+            .collection("campaigns")
+            .doc(data.campaignID)
+            .collection("posts")
+            .doc(data.postID)
+            .collection("comments")
+            .orderBy("date", "asc")
+            .get()
+        const snapshot = await Promise.race([timeoutPromise, snapshotPromise])
+        if (!snapshot.empty) {
+            return snapshot.docs.map(value => {
+                return {...value.data(), date: formatter.format(value.data().date.toDate())} as CommentModel
             })
         } else {
             return []
