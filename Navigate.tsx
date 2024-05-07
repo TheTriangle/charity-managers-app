@@ -22,6 +22,8 @@ import PostCreationScreen from "./ui/campaign/screens/PostCreationScreen";
 import FinishCampaignScreen from "./ui/campaign/screens/FinishCampaignScreen";
 import {LocationModel} from "react-native-location-view/interface/LocationModel";
 import CharityLocationScreen from "./ui/charity/screens/CharityLocationScreen";
+import {PostRemoteModel} from "./data/model/PostLocalModel";
+import CommentsScreen from "./ui/comments/screens/CommentsScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -91,6 +93,10 @@ const postCreationOptions = {
     ...commonOptions,
 }
 
+const commentsOptions = {
+    ...commonOptions,
+}
+
 const ProfileStack = createStackNavigator()
 
 const ProfileStackNavigator = () => {
@@ -132,6 +138,11 @@ type OrganizationsStackParamList = {
     },
     FinishCampaign: {
         campaign: CampaignModel,
+    },
+    Comments: {
+        post: PostRemoteModel,
+        campaignID: string,
+        charityName: string,
     }
 }
 
@@ -151,12 +162,14 @@ export type FinishCampaignProps = StackScreenProps<OrganizationsStackParamList, 
 
 export type LocationProps = StackScreenProps<OrganizationsStackParamList, "LocationScreen">
 
+export type CommentsProps = StackScreenProps<OrganizationsStackParamList, "Comments">
+
 
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
 // @ts-ignore
 const OrganizationsStackNavigator = ({ navigation, route }) => {
-    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign", "LocationScreen"];
+    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign", "LocationScreen", "Comments"];
     React.useLayoutEffect(() => {
         // const routeName = getFocusedRouteNameFromRoute(route);
         if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route) as string)){
@@ -175,6 +188,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
         <OrganizationsStack.Screen name={"Campaign"} component={CampaignScreen} options={campaignOptions}/>
         <OrganizationsStack.Screen name={"CreatePost"} component={PostCreationScreen} options={postCreationOptions}/>
         <OrganizationsStack.Screen name={"FinishCampaign"} component={FinishCampaignScreen} options={postCreationOptions}/>
+        <OrganizationsStack.Screen name={"Comments"} component={CommentsScreen} options={commentsOptions}/>
 
     </OrganizationsStack.Navigator>
 }

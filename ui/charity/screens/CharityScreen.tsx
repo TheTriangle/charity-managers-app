@@ -12,7 +12,7 @@ import {selectCampaignsState, selectCharitiesState} from "../../../redux/selecto
 import CampaignListItem from "../../campaign/components/CampaignListItem";
 import {FlatList, RefreshControl} from "react-native-gesture-handler";
 import {useAppDispatch} from "../../../hooks";
-import {getCampaigns} from "../../../redux/slices/campaignsSlice";
+import {clearCampaigns, getCampaigns} from "../../../redux/slices/campaignsSlice";
 import Toast from "react-native-simple-toast";
 
 export default function CharityScreen({route: {params: {charityID}}}: CharityProps) {
@@ -36,6 +36,9 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
 
     useEffect(() => {
         fetchCampaigns()
+        return () => {
+            dispatch(clearCampaigns())
+        }
     }, []);
 
 

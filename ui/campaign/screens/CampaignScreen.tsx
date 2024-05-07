@@ -7,7 +7,7 @@ import React, {useEffect} from "react";
 import {ScrollView, StyleSheet, View} from "react-native";
 import PostListItem from "../components/PostListItem";
 import Toast from "react-native-simple-toast";
-import {getPosts} from "../../../redux/slices/postsSlice";
+import {clearPosts, getPosts} from "../../../redux/slices/postsSlice";
 import PinnedPost from "../components/PinnedPost";
 import {RefreshControl} from "react-native-gesture-handler";
 import Button from "../../utils/Button";
@@ -29,6 +29,9 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
 
     useEffect(() => {
         fetchPosts()
+        return () => {
+            dispatch(clearPosts())
+        }
     }, []);
 
     return <View style={styles.container}>
@@ -37,10 +40,10 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
                 refreshing={postsState.loading}
                 onRefresh={fetchPosts}/>}>
             {!postsState.loading && postsState.error == null && postsState.pinnedPost !== null && <PinnedPost postModel={postsState.pinnedPost!!} collectedAmount={campaign.collectedamount} requiredAmount={campaign.totalamount} charityName={charityName}
-                         options={[]} actions={[]} onCommentsClick={undefined} containerStyle={{marginVertical: "1%"}}/>}
+                         options={[]} actions={[]} onCommentsClick={() => {nav.navigate("Comments", {post: postsState.pinnedPost, campaignID: campaign.id!!, charityName: charityName})}} containerStyle={{marginVertical: "1%"}}/>}
             {postsState.pinnedPost !== null &&
             postsState.posts.map((value, index) => {
-                return  <PostListItem key={index} postModel={value} options={[]} onCommentsClick={undefined}
+                return  <PostListItem key={index} postModel={value} options={[]} onCommentsClick={() => {nav.navigate("Comments", {post: value, campaignID: campaign.id!!, charityName: charityName})}}
                                                   actions={[]} containerStyle={{marginVertical: "2%"}}/>
         })}
 

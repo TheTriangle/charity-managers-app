@@ -254,6 +254,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                 placeholder={"Кошелек"}
                 autoCorrect={false}
                 keyboardType={"numeric"}
+                maxLength={16}
                 value={paymentAccount}
                 onChangeText={(text) => handlePaymentChange(text)}
             />

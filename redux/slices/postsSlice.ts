@@ -4,6 +4,7 @@ import {
     createPostRequest,
     getPostsRequest,
 } from "../../data/repo/repository";
+import {createComment} from "./commentsSlice";
 
 export const createPost = createAsyncThunk('posts/createPost', async (data : {
     campaignID: string,
@@ -49,7 +50,7 @@ const postsSlice = createSlice({
     initialState: initialState,
     reducers: {
         clearPosts: (state) => {
-            state.pinnedPost = undefined
+            state.pinnedPost = null
             state.posts = []
         },
     },
@@ -96,6 +97,16 @@ const postsSlice = createSlice({
             .addCase(finishCampaign.rejected, (state, action) => {
                 state.createLoading = false
                 state.createError = action.error.message ? action.error.message : ""
+            })
+
+            .addCase(createComment.fulfilled,(state, action) => {
+                if (state.pinnedPost?.id === action.payload.post) {
+                    state.pinnedPost.commentsCount += 1
+                } else {
+                    const index = state.posts.findIndex((post) => post.id === action.payload.post)
+                    state.posts[index].commentsCount += 1
+                }
+
             })
     },
 });
