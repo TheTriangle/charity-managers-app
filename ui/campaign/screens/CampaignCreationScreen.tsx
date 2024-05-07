@@ -34,6 +34,7 @@ import {PostLocalModel} from "../../../data/model/PostLocalModel";
 import firebase from "firebase/compat";
 import FieldValue = firebase.firestore.FieldValue;
 import {createCampaign, getPaymentConfirmation, requestCreatePayment} from "../../../redux/slices/campaignsSlice";
+import {Checkbox} from "../../utils/CheckBox";
 
 
 const reactNativeTagSelect = require("react-native-tag-select")
@@ -58,6 +59,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
     const [docID, setDocID] = useState<string | undefined>(undefined)
     const [notificationsConfirmed, setNotificationsConfirmed] = useState(false)
     const [loadingTitle, setLoadingTitle] = useState("Создание")
+    const [highPriority, setHighPriority] = useState(false)
 
     const ref = useRef<typeof TagSelect>()
     const screenHeight = useSafeAreaFrame().height;
@@ -86,6 +88,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             totalamount: isNaN(Number(amount)) ? 0 : Number(amount),
             name: title,
             confirmednotifications: notificationsConfirmed,
+            highPriority: highPriority
         }
         paymentAccount !== "" && (campaign.yoomoney = paymentAccount)
         checkedTagsCount !== 0 && (campaign.tags = getSelectedTags())
@@ -338,6 +341,11 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                 />
                 <SvgXml xml={iconRouble} style={{position: "absolute", right: "2%", top: "45%"}}/>
             </View>
+
+            <Pressable style={{flexDirection: "row", flex: 1, alignItems: "center", marginTop: marginVertical * 3}} onPress={() => {setHighPriority(prev => !prev)}}>
+                <Checkbox onChange={() => {setHighPriority(prev => !prev)}} checked={highPriority}/>
+                <Text style={{marginLeft: 10}}>Срочный сбор</Text>
+            </Pressable>
 
             <Text style={[styles.header, {marginVertical: marginVertical, marginTop: marginVertical * 2}]}>Главная
                 запись</Text>
