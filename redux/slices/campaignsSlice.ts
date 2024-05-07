@@ -5,6 +5,7 @@ import {requestCreateCampaign, requestGetCampaigns, requestGetPaymentConfirmatio
 import {finishCampaign} from "./postsSlice";
 import axios from "axios/index";
 import {auth} from "../../firebase/config";
+import {requestDeletion} from "./charitiesSlice";
 
 export const createCampaign = createAsyncThunk('campaigns/createCampaign', async (data: {
     documentID: string,
@@ -122,6 +123,16 @@ const campaignsSlice = createSlice({
             .addCase(getPaymentConfirmation.rejected, (state, action) => {
                 state.createLoading = false
                 state.createError = action.error.message ? action.error.message : ""
+            })
+
+            .addCase(requestDeletion.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(requestDeletion.fulfilled, (state, action) => {
+                state.loading = false
+            })
+            .addCase(requestDeletion.rejected, (state, action) => {
+                state.loading = false
             })
 
             .addCase(finishCampaign.fulfilled, (state, action) => {

@@ -8,7 +8,7 @@ export default function CharityListItem({charity, onPress}: {
     onPress: (charity: CharityModel) => void
 }) {
     return (
-        <TouchableOpacity onPress={() => onPress(charity)} style={styles.container}>
+        <TouchableOpacity onPress={() => onPress(charity)} style={[styles.container, charity.requestedDeletion && {backgroundColor: "#ffd8d8"}]}>
             <Text style={styles.label}>{charity.name}</Text>
             <Text style={{marginBottom: 10}}>{charity.briefDescription}</Text>
             <View style={styles.buttonContainer}>

@@ -16,6 +16,7 @@ export interface CharityModel {
     organization: boolean;
     ogrn: string;
     photourl?: string | null;
+    requestedDeletion?: boolean;
     tags: TagModel[];
     url?: string | null;
 }

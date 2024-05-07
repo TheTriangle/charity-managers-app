@@ -137,6 +137,25 @@ export const updateConfirmedCharity = async (data: {
     }
 }
 
+export const deleteCharity = async (charityId: string) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        });
+
+        const deletePromise = firestore()
+            .collection("charities").doc(charityId)
+            .update({requestedDeletion: true});
+
+        await Promise.race([deletePromise, timeoutPromise]);
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
 const uploadFile = async (uri: string, name: string, campaignID: string) => {
 
     const storage = getStorage()
