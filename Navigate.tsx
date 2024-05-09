@@ -24,6 +24,7 @@ import {LocationModel} from "react-native-location-view/interface/LocationModel"
 import CharityLocationScreen from "./ui/charity/screens/CharityLocationScreen";
 import {PostRemoteModel} from "./data/model/PostLocalModel";
 import CommentsScreen from "./ui/comments/screens/CommentsScreen";
+import CampaignUpdateScreen from "./ui/campaign/screens/CampaignUpdateScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -97,6 +98,10 @@ const commentsOptions = {
     ...commonOptions,
 }
 
+const updateCampaignOptions = {
+    ...commonOptions,
+}
+
 const ProfileStack = createStackNavigator()
 
 const ProfileStackNavigator = () => {
@@ -139,6 +144,9 @@ type OrganizationsStackParamList = {
     FinishCampaign: {
         campaign: CampaignModel,
     },
+    UpdateCampaign: {
+        campaign: CampaignModel,
+    },
     Comments: {
         post: PostRemoteModel,
         campaignID: string,
@@ -160,6 +168,8 @@ export type PostCreationProps = StackScreenProps<OrganizationsStackParamList, 'C
 
 export type FinishCampaignProps = StackScreenProps<OrganizationsStackParamList, 'FinishCampaign'>;
 
+export type UpdateCampaignProps = StackScreenProps<OrganizationsStackParamList, 'UpdateCampaign'>;
+
 export type LocationProps = StackScreenProps<OrganizationsStackParamList, "LocationScreen">
 
 export type CommentsProps = StackScreenProps<OrganizationsStackParamList, "Comments">
@@ -169,7 +179,7 @@ const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
 // @ts-ignore
 const OrganizationsStackNavigator = ({ navigation, route }) => {
-    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign", "LocationScreen", "Comments"];
+    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign", "LocationScreen", "Comments", "UpdateCampaign"];
     React.useLayoutEffect(() => {
         // const routeName = getFocusedRouteNameFromRoute(route);
         if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route) as string)){
@@ -188,6 +198,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
         <OrganizationsStack.Screen name={"Campaign"} component={CampaignScreen} options={campaignOptions}/>
         <OrganizationsStack.Screen name={"CreatePost"} component={PostCreationScreen} options={postCreationOptions}/>
         <OrganizationsStack.Screen name={"FinishCampaign"} component={FinishCampaignScreen} options={postCreationOptions}/>
+        <OrganizationsStack.Screen name={"UpdateCampaign"} component={CampaignUpdateScreen} options={updateCampaignOptions}/>
         <OrganizationsStack.Screen name={"Comments"} component={CommentsScreen} options={commentsOptions}/>
 
     </OrganizationsStack.Navigator>

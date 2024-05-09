@@ -11,6 +11,7 @@ import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
 import QuerySnapshot = firebase.firestore.QuerySnapshot;
 import DocumentSnapshot = firebase.firestore.DocumentSnapshot;
 import {CommentModel} from "../model/CommentModel";
+import FieldValue = firebase.firestore.FieldValue;
 
 let repoFirestore = firestore()
 
@@ -291,6 +292,35 @@ export const requestCreateCampaign = async (data: {
         await Promise.race([batchTimeoutPromise, batch.commit()])
         return {...data.campaign, id: campaignRef.id} as CampaignModel
 
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const requestUpdateCampaign = async (data: {
+    id: string,
+    tags: TagModel[],
+    increment: number,
+    totalAmount: number
+    date: string,
+    highPriority: boolean
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise<DocumentSnapshot>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, 10000)
+        });
+
+        const campaignUpdatePromise = firestore().collection("campaigns").doc(data.id).update({
+            tags: data.tags,
+            totalamount: data.totalAmount,
+            collectedamount: FieldValue.increment(data.increment),
+            enddate: data.date,
+            highPriority: data.highPriority
+        })
+        await Promise.race([campaignUpdatePromise, timeoutPromise])
     } else {
         throw Error("No internet connection")
     }

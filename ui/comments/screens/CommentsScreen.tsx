@@ -1,5 +1,4 @@
 import {CommentsProps} from "../../../Navigate";
-import {useNavigation} from "@react-navigation/native";
 import {useSelector} from "react-redux";
 import {selectCommentsState} from "../../../redux/selectors";
 import {useAppDispatch} from "../../../hooks";
@@ -49,7 +48,7 @@ export default function CommentsScreen({route: {params: {post, campaignID, chari
                 campaignID: campaignID,
                 postID: post.id,
                 comment: {
-                    data: comment,
+                    text: comment,
                     uid: auth.currentUser!!.uid,
                     date: FieldValue.serverTimestamp(),
                     username: charityName,
@@ -80,7 +79,7 @@ export default function CommentsScreen({route: {params: {post, campaignID, chari
                       <PostListItem onCommentsClick={undefined} options={[]} actions={[]} postModel={currentPost}/>
                   }
                   renderItem={({item}) => {
-                      return <CommentItem username={item.username} content={item.data} date={item.date as string}/>
+                      return <CommentItem username={item.username} content={item.text} date={item.date as string}/>
                   }}
                   refreshing={state.loading}
                   onRefresh={fetchComments}

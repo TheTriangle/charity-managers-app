@@ -93,6 +93,7 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
                           return <CampaignListItem campaign={item} onPress={() => {
                               nav.navigate("Campaign", {campaign: item, charityName: charity.name})
                           }} onEditClick={() => {
+                              nav.navigate("UpdateCampaign", {campaign: item})
                           }} onRemoveClick={() => {
                               nav.navigate("FinishCampaign", {campaign: item,})
                           }}
