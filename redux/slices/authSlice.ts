@@ -26,6 +26,12 @@ export const signUpAsyncEmail = createAsyncThunk('auth/signUpAsyncEmail', async 
     await auth.createUserWithEmailAndPassword(credentials.email, credentials.password)
 })
 
+export const resetPass = createAsyncThunk('auth/resetPass', async (
+    email: string,
+) => {
+    await auth.sendPasswordResetEmail(email)
+})
+
 export const hasProfile = createAsyncThunk('auth/hasProfile',
     async () => {
         return await hasManagerAccount()
@@ -123,6 +129,19 @@ const authSlice = createSlice({
                 state.loading = false;
             })
             .addCase(hasProfile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+
+            .addCase(resetPass.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(resetPass.fulfilled, (state, action) => {
+                state.loading = false;
+                state.error = null;
+            })
+            .addCase(resetPass.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
             })
