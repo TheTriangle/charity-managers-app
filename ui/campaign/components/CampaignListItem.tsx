@@ -14,13 +14,13 @@ export default function CampaignListItem({campaign, containerStyle, onPress, onR
     onEditClick: (campaign: CampaignModel) => void,
 }) {
 
-    const fillPercentage = campaign.totalamount == 0 ? 0 :
+    const fillPercentage = campaign.totalamount == 0 ? 100 :
         (campaign.collectedamount > campaign.totalamount ? 100 : (campaign.collectedamount / campaign.totalamount) * 100)
 
     const textValue = campaign.name.length >= 25 ? campaign.name.substring(0, 23) + "..." : campaign.name
 
     return (
-        <View style={[styles.container, containerStyle]}>
+        <View style={[styles.container, containerStyle, campaign.highPriority && {borderWidth: 1.5, borderColor: "#800a0a"}]}>
 
             {(campaign.closed == undefined || !campaign.closed) && <SvgXml onPress={() => onRemoveClick(campaign)} xml={iconRemoveX} scaleY={0.8} scaleX={0.8}/>}
             {campaign.closed && <SvgXml onPress={undefined} xml={iconLock} scaleY={0.8} scaleX={0.8}/>}

@@ -1,4 +1,5 @@
 import {
+    Alert,
     StyleSheet,
     View,
 } from "react-native";
@@ -14,6 +15,8 @@ import {FlatList, RefreshControl} from "react-native-gesture-handler";
 import {useAppDispatch} from "../../../hooks";
 import {clearCampaigns, getCampaigns} from "../../../redux/slices/campaignsSlice";
 import Toast from "react-native-simple-toast";
+import Spinner from "react-native-loading-spinner-overlay";
+import {requestDeletion} from "../../../redux/slices/charitiesSlice";
 
 export default function CharityScreen({route: {params: {charityID}}}: CharityProps) {
 
@@ -34,6 +37,34 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
         }
     }
 
+    const requestDelete = async () => {
+        try {
+            await dispatch(requestDeletion(charityID)).unwrap()
+            Toast.show("Заявка на удаление успешно создана", Toast.LONG)
+            nav.pop()
+        } catch (e) {
+            Toast.show("Не удалось оставить заявку на удаление", Toast.LONG)
+        }
+    }
+
+    const onDelete = async () => {
+        if (charity.requestedDeletion) {
+            Alert.alert('Удаление', 'Вы уже оставили заявку на удаление', [
+                {text: 'Ок'},
+            ]);
+            return
+        }
+        Alert.alert('Удаление', 'Будет создана заявка на удаление и рассмотрена модератором.\n' +
+            'После создания заявки благотворители не смогут оставлять пожертвования в текующую организацию и будет недоступно создание новых сборов\n' +
+            'Продолжить?', [
+            {
+                text: 'Отмена',
+                style: 'cancel',
+            },
+            {text: 'Да', onPress: () => requestDelete()},
+        ]);
+    }
+
     useEffect(() => {
         fetchCampaigns()
         return () => {
@@ -42,18 +73,27 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
     }, []);
 
 
-
     return <View style={styles.container}>
+        <Spinner
+            visible={state.deletionLoading}
+            textContent={'Заявка на удаление...'}
+            textStyle={{color: "white"}}
+        />
         <TitleCard containerStyle={{marginBottom: 20}} title={charity.name} desc={charity.description}
-                   tags={charity.tags} options={["Редактировать", "Удалить", "Отмена"]} actions={[onEditClick, () => {}]}/>
+                   tags={charity.tags} options={["Редактировать", "Удалить", "Отмена"]}
+                   actions={[onEditClick, onDelete]}/>
 
         {!campaignsState.loading && campaignsState.campaigns.length == 0 ?
-            <Button onPress={campaignsState.error == null ? () => nav.navigate("CreateCampaign", {charityID: charityID}) : fetchCampaigns} text={campaignsState.error == null ? "Открыть сбор" : "Попробовать снова"}/> :
-            <FlatList contentContainerStyle={{padding: 1.5, paddingBottom: 70}} style={{width: "100%"}} data={campaignsState.campaigns}
+            !charity.requestedDeletion && <Button
+                onPress={campaignsState.error == null ? () => nav.navigate("CreateCampaign", {charityID: charityID}) : fetchCampaigns}
+                text={campaignsState.error == null ? "Открыть сбор" : "Попробовать снова"}/> :
+            <FlatList contentContainerStyle={{padding: 1.5, paddingBottom: 70}} style={{width: "100%"}}
+                      data={campaignsState.campaigns}
                       renderItem={({item}) => {
                           return <CampaignListItem campaign={item} onPress={() => {
                               nav.navigate("Campaign", {campaign: item, charityName: charity.name})
                           }} onEditClick={() => {
+                              nav.navigate("UpdateCampaign", {campaign: item})
                           }} onRemoveClick={() => {
                               nav.navigate("FinishCampaign", {campaign: item,})
                           }}
@@ -66,12 +106,12 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
                           onRefresh={fetchCampaigns}/>}
             />
         }
-        {campaignsState.campaigns.length > 0 &&
+        {campaignsState.campaigns.length > 0 && !charity.requestedDeletion &&
             <View style={{position: "absolute", alignSelf: "center", bottom: 20, opacity: 0.7}}>
                 <Button
-                        onPress={() => nav.navigate("CreateCampaign", {charityID: charityID})} text={"Открыть сбор"}/>
+                    onPress={() => nav.navigate("CreateCampaign", {charityID: charityID})} text={"Открыть сбор"}/>
             </View>
-            }
+        }
     </View>
 
 }

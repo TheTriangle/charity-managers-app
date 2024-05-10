@@ -1,6 +1,6 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {CharityModel} from "../../data/model/СharityModel";
-import {getAllCharities, updateConfirmedCharity} from "../../data/repo/repository";
+import {deleteCharity, getAllCharities, updateConfirmedCharity} from "../../data/repo/repository";
 import {auth} from "../../firebase/config";
 import axios from "axios";
 import {TagModel} from "../../data/model/TagModel";
@@ -47,9 +47,17 @@ export const editConfirmedCharity = createAsyncThunk('charities/editConfirmedCha
     return data
 })
 
+export const requestDeletion = createAsyncThunk('charities/deleteConfirmedCharity', async (
+    charityId: string
+) => {
+    await deleteCharity(charityId)
+    return charityId
+})
+
 interface initialStateType {
     loading: boolean,
     editLoading: boolean,
+    deletionLoading: boolean,
     error: string | undefined | null,
     editError: string | undefined | null,
     confirmedCharities: CharityModel[],
@@ -59,13 +67,14 @@ interface initialStateType {
 const initialState: initialStateType = {
     loading: true,
     editLoading: false,
+    deletionLoading: false,
     error: null,
     editError: null,
     confirmedCharities: [],
     unconfirmedCharities: []
 }
 
-const profileSlice = createSlice({
+const charitiesSlice = createSlice({
     name: 'charities',
     initialState: initialState,
     reducers: {},
@@ -127,8 +136,19 @@ const profileSlice = createSlice({
                 state.editError = action.error.message ? action.error.message : ""
             })
 
+            .addCase(requestDeletion.pending, state => {
+                state.deletionLoading = true
+            })
+            .addCase(requestDeletion.fulfilled, (state, action) => {
+                state.deletionLoading = false
+                const index = state.confirmedCharities.findIndex((charity) => charity.id === action.payload)
+                state.confirmedCharities[index] = {...state.confirmedCharities[index], requestedDeletion: true}
+            })
+            .addCase(requestDeletion.rejected, (state, action) => {
+                state.deletionLoading = false
+            })
     },
 });
 
 
-export default profileSlice.reducer
+export default charitiesSlice.reducer

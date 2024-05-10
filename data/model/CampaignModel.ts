@@ -9,6 +9,7 @@ export interface CampaignModel {
     name: string
     tags?: TagModel[]
     confirmednotifications: boolean
+    highPriority?: boolean
     enddate?: string
     closed?: boolean
 }

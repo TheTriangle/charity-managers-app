@@ -11,6 +11,7 @@ import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
 import QuerySnapshot = firebase.firestore.QuerySnapshot;
 import DocumentSnapshot = firebase.firestore.DocumentSnapshot;
 import {CommentModel} from "../model/CommentModel";
+import FieldValue = firebase.firestore.FieldValue;
 
 let repoFirestore = firestore()
 
@@ -58,9 +59,10 @@ export const hasManagerAccount = async () => {
         const doc = await Promise.race([timeoutPromise, existsPromise])
         if (doc.exists) {
             const data = doc.data()
-            return data!.hasOwnProperty("managerName")
+            const hasAccount = data!.hasOwnProperty("managerName")
+            return {hasAccount: hasAccount, phone: data!.phone as string | undefined, social: data!.social as string | undefined}
         } else {
-            return false
+            return {hasAccount: false, phone: "", social: ""}
         }
     } else {
         throw Error("No internet connection")
@@ -85,6 +87,48 @@ export const fillManagerData = async (managerData: {
         const doc = firestore().collection("users").doc(auth.currentUser?.uid)
         const updatePromise = doc.update(managerData)
         await Promise.race([updatePromise, timeoutPromise]);
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const updateContacts = async (data: {
+    phone: string,
+    social: string,
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"));
+            }, TIMEOUT_MILLIS)
+        });
+
+        const updatePromise = firestore().collection("users").doc(auth.currentUser?.uid).update(data)
+        await Promise.race([updatePromise, timeoutPromise]);
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const createContactUsRequest = async (data: {
+    contact: string,
+    title: string,
+    text: string,
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"));
+            }, TIMEOUT_MILLIS)
+        });
+
+        const createPromise = firestore().collection("supportrequests").add({
+            ...data,
+            uid: auth.currentUser?.uid
+        })
+        await Promise.race([createPromise, timeoutPromise]);
     } else {
         throw Error("No internet connection")
     }
@@ -132,6 +176,25 @@ export const updateConfirmedCharity = async (data: {
         const updatePromise = firestore().collection("charities").doc(data.id).update(data);
 
         await Promise.race([updatePromise, timeoutPromise]);
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const deleteCharity = async (charityId: string) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, TIMEOUT_MILLIS)
+        });
+
+        const deletePromise = firestore()
+            .collection("charities").doc(charityId)
+            .update({requestedDeletion: true});
+
+        await Promise.race([deletePromise, timeoutPromise]);
     } else {
         throw Error("No internet connection")
     }
@@ -272,6 +335,35 @@ export const requestCreateCampaign = async (data: {
         await Promise.race([batchTimeoutPromise, batch.commit()])
         return {...data.campaign, id: campaignRef.id} as CampaignModel
 
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const requestUpdateCampaign = async (data: {
+    id: string,
+    tags: TagModel[],
+    increment: number,
+    totalAmount: number
+    date: string,
+    highPriority: boolean
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise<DocumentSnapshot>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"))
+            }, 10000)
+        });
+
+        const campaignUpdatePromise = firestore().collection("campaigns").doc(data.id).update({
+            tags: data.tags,
+            totalamount: data.totalAmount,
+            collectedamount: FieldValue.increment(data.increment),
+            enddate: data.date,
+            highPriority: data.highPriority
+        })
+        await Promise.race([campaignUpdatePromise, timeoutPromise])
     } else {
         throw Error("No internet connection")
     }
