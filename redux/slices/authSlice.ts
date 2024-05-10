@@ -119,7 +119,7 @@ const authSlice = createSlice({
                 state.error = null;
             })
             .addCase(hasProfile.fulfilled, (state, action) => {
-                state.hasProfile = action.payload
+                state.hasProfile = action.payload.hasAccount
                 state.loading = false;
             })
             .addCase(hasProfile.rejected, (state, action) => {

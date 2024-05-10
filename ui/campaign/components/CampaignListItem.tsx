@@ -14,7 +14,7 @@ export default function CampaignListItem({campaign, containerStyle, onPress, onR
     onEditClick: (campaign: CampaignModel) => void,
 }) {
 
-    const fillPercentage = campaign.totalamount == 0 ? 0 :
+    const fillPercentage = campaign.totalamount == 0 ? 100 :
         (campaign.collectedamount > campaign.totalamount ? 100 : (campaign.collectedamount / campaign.totalamount) * 100)
 
     const textValue = campaign.name.length >= 25 ? campaign.name.substring(0, 23) + "..." : campaign.name

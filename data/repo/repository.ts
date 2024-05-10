@@ -59,9 +59,10 @@ export const hasManagerAccount = async () => {
         const doc = await Promise.race([timeoutPromise, existsPromise])
         if (doc.exists) {
             const data = doc.data()
-            return data!.hasOwnProperty("managerName")
+            const hasAccount = data!.hasOwnProperty("managerName")
+            return {hasAccount: hasAccount, phone: data!.phone as string | undefined, social: data!.social as string | undefined}
         } else {
-            return false
+            return {hasAccount: false, phone: "", social: ""}
         }
     } else {
         throw Error("No internet connection")
@@ -86,6 +87,48 @@ export const fillManagerData = async (managerData: {
         const doc = firestore().collection("users").doc(auth.currentUser?.uid)
         const updatePromise = doc.update(managerData)
         await Promise.race([updatePromise, timeoutPromise]);
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const updateContacts = async (data: {
+    phone: string,
+    social: string,
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"));
+            }, TIMEOUT_MILLIS)
+        });
+
+        const updatePromise = firestore().collection("users").doc(auth.currentUser?.uid).update(data)
+        await Promise.race([updatePromise, timeoutPromise]);
+    } else {
+        throw Error("No internet connection")
+    }
+}
+
+export const createContactUsRequest = async (data: {
+    contact: string,
+    title: string,
+    text: string,
+}) => {
+    const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+    if (isConnected) {
+        const timeoutPromise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Request timed out"));
+            }, TIMEOUT_MILLIS)
+        });
+
+        const createPromise = firestore().collection("supportrequests").add({
+            ...data,
+            uid: auth.currentUser?.uid
+        })
+        await Promise.race([createPromise, timeoutPromise]);
     } else {
         throw Error("No internet connection")
     }
