@@ -1,5 +1,5 @@
-import {Alert, StyleSheet, TextInput, View} from 'react-native';
-import {BACKGROUND_COLOR, BORDER_COLOR_RED} from "../../../styles/colors";
+import {Alert, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {BACKGROUND_COLOR, BORDER_COLOR_RED, BUTTON_ACTIVE_COLOR} from "../../../styles/colors";
 import {auth} from "../../../firebase/config";
 import {GoogleSigninButton} from '@react-native-google-signin/google-signin';
 import Toast from 'react-native-simple-toast';
@@ -7,16 +7,17 @@ import {useSelector} from "react-redux";
 import {selectAuthState} from "../../../redux/selectors";
 import React, {useState} from "react";
 import Spinner from "react-native-loading-spinner-overlay";
-import {signInAsyncEmail, signInAsyncGoogle, signUpAsyncEmail} from "../../../redux/slices/authSlice";
+import {resetPass, signInAsyncEmail, signInAsyncGoogle, signUpAsyncEmail} from "../../../redux/slices/authSlice";
 import {useAppDispatch} from "../../../hooks";
 import {textInput} from "../../../styles/styles";
 import PrivacyPolicyLabel from "../components/PrivacyPolicyLabel";
 import AuthButton from "../components/AuthButton";
-import firebase from "firebase/compat";
 import {userExists} from "../../../data/repo/repository";
 import {AuthMethods} from "../../../data/model/authMethods";
 import {isFirebaseError} from "../../../utils/isFirebaseError";
-import NetInfo from "@react-native-community/netinfo";
+import Modal from "react-native-modal/dist/modal";
+import {useSafeAreaFrame} from "react-native-safe-area-context";
+import ModalButton from "../../utils/ModalButton";
 
 export default function AuthScreen() {
     const dispatch = useAppDispatch();
@@ -25,8 +26,16 @@ export default function AuthScreen() {
     const [password, setPassword] = useState("")
     const [validEmail, setValidEmail] = useState(true)
     const [validPassword, setValidPassword] = useState(true)
+    const [forgotPassVisible, setForgotPassVisible] = useState(false)
+    const [recoveryEmail, setRecoveryEmail] = useState("")
+    const [loadingTitle, setLoadingTitle] = useState("Авторизация...")
 
+    const screenHeight = useSafeAreaFrame().height;
+    const textInputHeight = screenHeight * 0.04
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
     const signInGoogle = async () => {
+        setLoadingTitle("Авторизация...")
         try {
             await dispatch(signInAsyncGoogle()).unwrap()
             console.log("logged in as: " + auth.currentUser?.uid)
@@ -70,6 +79,7 @@ export default function AuthScreen() {
     );
 
     const signInEmail = async () => {
+        setLoadingTitle("Авторизация...")
         try {
             const methods = await userExists(email)
             console.log(methods)
@@ -104,9 +114,35 @@ export default function AuthScreen() {
         }
     }
 
+    const requestPassRecovery = async () => {
+        setLoadingTitle("Отправка...")
+        try {
+            await dispatch(resetPass(recoveryEmail.toLowerCase())).unwrap()
+            setForgotPassVisible(false)
+            setRecoveryEmail("")
+            Toast.show("Письмо отправлено на указанную почту", Toast.SHORT)
+        } catch (e) {
+            if (isFirebaseError(e)) {
+                if (e.code == "auth/user-not-found") {
+                    Toast.show("Пользователь не найден", Toast.LONG)
+                }
+                if (e.code == "auth/invalid-email") {
+                    Toast.show("Введен некорректный адрес электронной почты", Toast.LONG)
+                }
+                if (e.code == "auth/too-many-requests") {
+                    Toast.show("Слишком много попыток входа в аккаунт, попробуйте позднее", Toast.LONG)
+                }
+                if (e.code == "auth/network-request-failed") {
+                    Toast.show("Нет подключения к интернету", Toast.LONG)
+                }
+            }
+            console.log(e)
+        }
+    }
+    
     const validateEmail = (email: string) => {
-        const expression = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!expression.test(String(email).toLowerCase())) {
+        
+        if (!emailRegex.test(String(email).toLowerCase())) {
             setValidEmail(false)
             return false
         }
@@ -116,6 +152,29 @@ export default function AuthScreen() {
 
     return (
         <View style={styles.container}>
+
+            <Modal isVisible={forgotPassVisible} onBackButtonPress={() => setForgotPassVisible(false)}
+                   onBackdropPress={() => setForgotPassVisible(false)}>
+                <View style={{
+                    alignSelf: "center",
+                    justifyContent: "center",
+                    backgroundColor: "white",
+                    padding: 15,
+                    borderRadius: 10,
+                    width: "90%"
+                }}>
+                    <Text style={styles.title}>Ваш email чтобы восстановить пароль</Text>
+                    <TextInput
+                        style={[styles.textInput, {height: textInputHeight}]}
+                        placeholder={"Email"}
+                        autoCorrect={false}
+                        value={recoveryEmail}
+                        onChangeText={(text) => setRecoveryEmail(text)}
+                    />
+                    <ModalButton onPress={requestPassRecovery} text={"Отправить"} active={emailRegex.test(recoveryEmail.toLowerCase())}/>
+                </View>
+            </Modal>
+
             <View style={{
                 flex: 1, alignItems: 'center',
                 justifyContent: 'center',
@@ -124,7 +183,7 @@ export default function AuthScreen() {
 
                 <Spinner
                     visible={authState.loading}
-                    textContent={'Авторизация...'}
+                    textContent={loadingTitle}
                     textStyle={{color: "white"}}
                 />
 
@@ -148,14 +207,14 @@ export default function AuthScreen() {
                     width: "70%",
                     height: "5%"
                 }, validPassword ? {} : {borderColor: BORDER_COLOR_RED}]}
-                           placeholder={"Password"}
+                           placeholder={"Пароль"}
                            secureTextEntry={true}
                            maxLength={32}
                            onChangeText={(text) => setPassword(text)}
                            onFocus={() => setValidPassword(true)}
                 />
 
-                <AuthButton text={"Continue with email"} onPress={() => {
+                <AuthButton text={"Войти по Email"} onPress={() => {
                     if (!validateEmail(email)) {
                         setValidEmail(false)
                         return
@@ -168,12 +227,16 @@ export default function AuthScreen() {
                 }}
                 />
                 <GoogleSigninButton
-                    style={styles.googleButton}
+                    style={styles.button}
                     size={GoogleSigninButton.Size.Wide}
                     color={GoogleSigninButton.Color.Light}
                     onPress={signInGoogle}
                 />
+                <TouchableOpacity activeOpacity={0.7} style={{padding: "4%"}} onPress={() => setForgotPassVisible(true)}>
+                    <Text style={styles.forgotPassword}>Забыли пароль?</Text>
+                </TouchableOpacity>
             </View>
+
             <PrivacyPolicyLabel/>
         </View>
     );
@@ -186,8 +249,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    googleButton: {
+    button: {
         width: "70%",
         height: "6%"
-    }
+    },
+    forgotPassword: {
+        color: BUTTON_ACTIVE_COLOR,
+        fontWeight: "600"
+    },
+    title: {
+        fontWeight: "600",
+        fontSize: 18,
+        marginVertical: "2%"
+    },
+    textInput: {
+        ...textInput,
+        width: "100%",
+        height: "5%"
+    },
 });
