@@ -25,6 +25,7 @@ import CharityLocationScreen from "./ui/charity/screens/CharityLocationScreen";
 import {PostRemoteModel} from "./data/model/PostLocalModel";
 import CommentsScreen from "./ui/comments/screens/CommentsScreen";
 import CampaignUpdateScreen from "./ui/campaign/screens/CampaignUpdateScreen";
+import StatisticsScreen from "./ui/statistics/screens/StatisticsScreen";
 
 const commonOptions = {
     headerShown: false,
@@ -151,6 +152,10 @@ type OrganizationsStackParamList = {
         post: PostRemoteModel,
         campaignID: string,
         charityName: string,
+    },
+    Statistics: {
+        id: string,
+        isCampaign: boolean
     }
 }
 
@@ -174,12 +179,14 @@ export type LocationProps = StackScreenProps<OrganizationsStackParamList, "Locat
 
 export type CommentsProps = StackScreenProps<OrganizationsStackParamList, "Comments">
 
+export type StatisticsProps = StackScreenProps<OrganizationsStackParamList, "Statistics">
+
 
 const OrganizationsStack = createStackNavigator<OrganizationsStackParamList>()
 
 // @ts-ignore
 const OrganizationsStackNavigator = ({ navigation, route }) => {
-    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign", "LocationScreen", "Comments", "UpdateCampaign"];
+    const tabHiddenRoutes = ["CreateCharity", "CharityEdit", "CreateCampaign", "LocationScreen", "Comments", "UpdateCampaign", "Statistics"];
     React.useLayoutEffect(() => {
         // const routeName = getFocusedRouteNameFromRoute(route);
         if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route) as string)){
@@ -200,6 +207,7 @@ const OrganizationsStackNavigator = ({ navigation, route }) => {
         <OrganizationsStack.Screen name={"FinishCampaign"} component={FinishCampaignScreen} options={postCreationOptions}/>
         <OrganizationsStack.Screen name={"UpdateCampaign"} component={CampaignUpdateScreen} options={updateCampaignOptions}/>
         <OrganizationsStack.Screen name={"Comments"} component={CommentsScreen} options={commentsOptions}/>
+        <OrganizationsStack.Screen name={"Statistics"} component={StatisticsScreen} options={commonOptions}/>
 
     </OrganizationsStack.Navigator>
 }

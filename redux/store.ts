@@ -6,6 +6,7 @@ import resourceReducer from "./slices/resourceSlice";
 import campaignsReducer from "./slices/campaignsSlice";
 import postsReducer from "./slices/postsSlice";
 import commentsReducer from "./slices/commentsSlice";
+import statisticsReducer from "./slices/statisticsSlice";
 
 export const store = configureStore({
     reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
         resource: resourceReducer,
         campaigns: campaignsReducer,
         posts: postsReducer,
-        comments: commentsReducer
+        comments: commentsReducer,
+        statistics: statisticsReducer
     }
 })
 

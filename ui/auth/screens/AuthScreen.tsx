@@ -214,7 +214,7 @@ export default function AuthScreen() {
                            onFocus={() => setValidPassword(true)}
                 />
 
-                <AuthButton text={"Войти по Email"} onPress={() => {
+                <AuthButton text={"Продолжить по Email"} onPress={() => {
                     if (!validateEmail(email)) {
                         setValidEmail(false)
                         return

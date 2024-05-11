@@ -19,6 +19,9 @@
       }
     },
     "release": {
+      "env": {
+        "EXPO_PUBLIC_GOOGLE_MAPS_KEY": "AIzaSyAqMqOhaq6kc-r48J-s6FbujJJYr8LuTlg"
+      },
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease"
