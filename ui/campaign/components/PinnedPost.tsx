@@ -29,7 +29,7 @@ export default function PinnedPost({postModel, charityName, collectedAmount, req
         <View style={{position: "absolute", right: 0, marginTop: 10}}>
             <OptionsMenu
                 customButton={<SvgXml xml={iconDots}/>}
-                destructiveIndex={1}
+                // destructiveIndex={1}
                 options={options}
                 actions={actions}/>
         </View>

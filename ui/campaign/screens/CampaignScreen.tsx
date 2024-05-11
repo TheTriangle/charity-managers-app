@@ -34,13 +34,17 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
         }
     }, []);
 
+    const onStats = () => {
+        nav.navigate("Statistics", {id: campaign.id!!, isCampaign: true})
+    }
+
     return <View style={styles.container}>
         <ScrollView style={{width: "100%"}} contentContainerStyle={{padding: "4%", paddingBottom: 70}} refreshControl={<RefreshControl
                 colors={["#9Bd35A", "#689F38"]}
                 refreshing={postsState.loading}
                 onRefresh={fetchPosts}/>}>
             {!postsState.loading && postsState.error == null && postsState.pinnedPost !== null && <PinnedPost postModel={postsState.pinnedPost!!} collectedAmount={campaign.collectedamount} requiredAmount={campaign.totalamount} charityName={charityName}
-                         options={[]} actions={[]} onCommentsClick={() => {nav.navigate("Comments", {post: postsState.pinnedPost, campaignID: campaign.id!!, charityName: charityName})}} containerStyle={{marginVertical: "1%"}}/>}
+                         options={["Статистика", "Отмена"]} actions={[onStats]} onCommentsClick={() => {nav.navigate("Comments", {post: postsState.pinnedPost, campaignID: campaign.id!!, charityName: charityName})}} containerStyle={{marginVertical: "1%"}}/>}
             {postsState.pinnedPost !== null &&
             postsState.posts.map((value, index) => {
                 return  <PostListItem key={index} postModel={value} options={[]} onCommentsClick={() => {nav.navigate("Comments", {post: value, campaignID: campaign.id!!, charityName: charityName})}}

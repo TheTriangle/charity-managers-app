@@ -23,10 +23,12 @@ export default function App() {
     
     useEffect(() => {
         return auth.onAuthStateChanged(async (user) => {
+            console.log("auth: "+user?.uid)
             if (user !== null) {
                 try {
                     await store.dispatch(hasProfile()).unwrap()
                     store.dispatch(authorize())
+                    console.log(store.getState().auth)
                 } catch (e) {
                     if (isFirebaseError(e)) {
                         console.log("firebase error: " + e.code + " " + e.message)
@@ -34,6 +36,7 @@ export default function App() {
                             setNoInternet(true)
                         }
                     }
+                    await store.dispatch(signOut()).unwrap()
                     Toast.show("Ошибка авторизации", Toast.LONG)
                 }
             }

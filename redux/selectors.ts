@@ -13,3 +13,5 @@ export const selectCampaignsState = (state: RootState) => state.campaigns
 export const selectPostsState = (state: RootState) => state.posts
 
 export const selectCommentsState = (state: RootState) => state.comments
+
+export const selectStatisticsState = (state: RootState) => state.statistics

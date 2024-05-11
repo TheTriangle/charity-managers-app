@@ -65,6 +65,10 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
         ]);
     }
 
+    const onStats = () => {
+        nav.navigate("Statistics", {id: charityID, isCampaign: false})
+    }
+
     useEffect(() => {
         fetchCampaigns()
         return () => {
@@ -80,8 +84,8 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
             textStyle={{color: "white"}}
         />
         <TitleCard containerStyle={{marginBottom: 20}} title={charity.name} desc={charity.description}
-                   tags={charity.tags} options={["Редактировать", "Удалить", "Отмена"]}
-                   actions={[onEditClick, onDelete]}/>
+                   tags={charity.tags} options={["Редактировать", "Удалить", "Статистика", "Отмена"]}
+                   actions={[onEditClick, onDelete, onStats]}/>
 
         {!campaignsState.loading && campaignsState.campaigns.length == 0 ?
             !charity.requestedDeletion && <Button
