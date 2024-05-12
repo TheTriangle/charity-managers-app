@@ -320,7 +320,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                        onPress={() => setDatePickerOpen(true)}>
                 <TextInput
                     style={{...styles.textInput, height: "100%", color: "black"}}
-                    placeholder={"дд/мм/гггг"}
+                    placeholder={"дд/мм/гггг (необязательно)"}
                     editable={false}
                     value={date ? formatter.format(date) : ""}
 
@@ -333,7 +333,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             <View style={{width: "100%", height: textInputHeight}}>
                 <TextInput
                     style={{...styles.textInput, height: "100%"}}
-                    placeholder={"Сумма"}
+                    placeholder={"Сумма (необязательно)"}
                     autoCorrect={false}
                     value={amount}
                     keyboardType={"numeric"}
