@@ -269,7 +269,7 @@ export const createPostRequest = async (data: {
         await Promise.race([postTimeoutPromise, createPostPromise])
 
         const post = await postRef.get()
-        return {...post.data(), date: formatter.format(post.data()!!.date.toDate())} as PostRemoteModel
+        return {...post.data(), date: formatter.format(post.data()!!.date.toDate()), id: post.id} as PostRemoteModel
     } else {
         throw Error("No internet connection")
     }
@@ -407,7 +407,7 @@ export const getPostsRequest = async (data: { campaignID: string }) => {
         const snapshot = await Promise.race([timeoutPromise, snapshotPromise])
         if (!snapshot.empty) {
             return snapshot.docs.map(value => {
-                return {...value.data(), date: formatter.format(value.data().date.toDate())} as PostRemoteModel
+                return {...value.data(), date: formatter.format(value.data().date.toDate()), id: value.id} as PostRemoteModel
             })
         } else {
             return []

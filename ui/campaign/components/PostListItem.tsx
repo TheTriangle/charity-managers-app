@@ -1,8 +1,5 @@
 import {StyleSheet, Text, View, ViewStyle, Image, Linking} from 'react-native';
-// @ts-ignore
-import OptionsMenu from "react-native-option-menu";
 import {SvgXml} from "react-native-svg";
-import {iconDots} from "../../../assets/iconDots";
 import React from "react";
 import {PostRemoteModel} from "../../../data/model/PostLocalModel";
 import FileViewComponent from "./FileViewComponent";
@@ -24,13 +21,6 @@ export default function PostListItem({postModel, onCommentsClick, containerStyle
 
 
     return <View style={[styles.container, containerStyle]}>
-        <View style={{position: "absolute", right: 0, marginTop: 10}}>
-            <OptionsMenu
-                customButton={<SvgXml xml={iconDots}/>}
-                destructiveIndex={1}
-                options={options}
-                actions={actions}/>
-        </View>
 
         <Text style={[styles.header, {fontSize: 24}]}>{postModel.header}</Text>
 

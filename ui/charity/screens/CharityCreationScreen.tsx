@@ -147,9 +147,10 @@ export default function CharityCreationScreen({route: {params: {charity: existin
             <Text style={[styles.title, {marginVertical}]}>Для благотворителей</Text>
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                placeholder={"Краткое название"}
+                placeholder={"Краткое название (нельзя будет изменить)"}
                 autoCorrect={false}
                 value={name}
+                maxLength={70}
                 onChangeText={(text) => setName(text)}
             />
             <TextInput multiline={true}
