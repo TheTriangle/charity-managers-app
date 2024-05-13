@@ -16,13 +16,6 @@ export default function PrivacyPolicyLabel() {
             Linking.openURL('https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley')
         }}
     >
-        Условиями использования
-    </Text> и <Text
-        style={{color: 'grey', textDecorationLine: "underline"}}
-        onPress={() => {
-            Linking.openURL('https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley')
-        }}
-    >
         Политикой конфиденциальности
     </Text>
     </Text>

@@ -33,7 +33,7 @@ export default function ImageRow({onClick, containerStyle, source, dimen, setSou
 
     const pickImage = async (index?: number) => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [2, 3],
             quality: 1,
