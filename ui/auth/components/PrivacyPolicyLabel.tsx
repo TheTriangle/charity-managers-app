@@ -13,7 +13,7 @@ export default function PrivacyPolicyLabel() {
         Продолжая, вы соглашаетесь с <Text
         style={{color: 'grey', textDecorationLine: "underline"}}
         onPress={() => {
-            Linking.openURL('https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley')
+            Linking.openURL('https://fukenrice.github.io/charity-managers-app/')
         }}
     >
         Политикой конфиденциальности
