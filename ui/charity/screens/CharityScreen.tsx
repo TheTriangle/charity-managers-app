@@ -33,35 +33,35 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
         try {
             await dispatch(getCampaigns({charityID})).unwrap()
         } catch (e) {
-            Toast.show("Не удалось загузить данные о кампаниях", Toast.LONG)
+            Toast.show("Could not load campaign data", Toast.LONG)
         }
     }
 
     const requestDelete = async () => {
         try {
             await dispatch(requestDeletion(charityID)).unwrap()
-            Toast.show("Заявка на удаление успешно создана", Toast.LONG)
+            Toast.show("Request successfully created", Toast.LONG)
             nav.pop()
         } catch (e) {
-            Toast.show("Не удалось оставить заявку на удаление", Toast.LONG)
+            Toast.show("Could not create deletion request", Toast.LONG)
         }
     }
 
     const onDelete = async () => {
         if (charity.requestedDeletion) {
-            Alert.alert('Удаление', 'Вы уже оставили заявку на удаление', [
-                {text: 'Ок'},
+            Alert.alert('Deletion', 'You have already left a deletion request', [
+                {text: 'Ok'},
             ]);
             return
         }
-        Alert.alert('Удаление', 'Будет создана заявка на удаление и рассмотрена модератором.\n' +
-            'После создания заявки благотворители не смогут оставлять пожертвования в текующую организацию и будет недоступно создание новых сборов\n' +
-            'Продолжить?', [
+        Alert.alert('Deletion', 'A deletion request will be created and sent to moderation.\n' +
+            'After the request is created, users will not be able to contribute to organisations campaigns\n' +
+            'Continue?', [
             {
-                text: 'Отмена',
+                text: 'Cancel',
                 style: 'cancel',
             },
-            {text: 'Да', onPress: () => requestDelete()},
+            {text: 'Yes', onPress: () => requestDelete()},
         ]);
     }
 
@@ -80,17 +80,17 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
     return <View style={styles.container}>
         <Spinner
             visible={state.deletionLoading}
-            textContent={'Заявка на удаление...'}
+            textContent={'Deletion request...'}
             textStyle={{color: "white"}}
         />
         <TitleCard containerStyle={{marginBottom: 20}} title={charity.name} desc={charity.description}
-                   tags={charity.tags} options={["Редактировать", "Удалить", "Статистика", "Отмена"]}
+                   tags={charity.tags} options={["Edit", "Delete", "Statistics", "Cancel"]}
                    actions={[onEditClick, onDelete, onStats]}/>
 
         {!campaignsState.loading && campaignsState.campaigns.length == 0 ?
             !charity.requestedDeletion && <Button
                 onPress={campaignsState.error == null ? () => nav.navigate("CreateCampaign", {charityID: charityID}) : fetchCampaigns}
-                text={campaignsState.error == null ? "Открыть сбор" : "Попробовать снова"}/> :
+                text={campaignsState.error == null ? "Create a campaign" : "Try again"}/> :
             <FlatList contentContainerStyle={{padding: 1.5, paddingBottom: 70}} style={{width: "100%"}}
                       data={campaignsState.campaigns}
                       renderItem={({item}) => {
@@ -113,7 +113,7 @@ export default function CharityScreen({route: {params: {charityID}}}: CharityPro
         {campaignsState.campaigns.length > 0 && !charity.requestedDeletion &&
             <View style={{position: "absolute", alignSelf: "center", bottom: 20, opacity: 0.7}}>
                 <Button
-                    onPress={() => nav.navigate("CreateCampaign", {charityID: charityID})} text={"Открыть сбор"}/>
+                    onPress={() => nav.navigate("CreateCampaign", {charityID: charityID})} text={"Create a campaign"}/>
             </View>
         }
     </View>

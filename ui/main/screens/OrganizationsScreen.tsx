@@ -30,7 +30,7 @@ export default function OrganizationsScreen() {
         try {
             await  dispatch(getCharities()).unwrap()
         } catch (e) {
-            Toast.show("Не удалось загрузить организации, попробуйте позже", Toast.SHORT)
+            Toast.show("Could not load organisations, try again", Toast.SHORT)
         }
     }
 
@@ -43,8 +43,8 @@ export default function OrganizationsScreen() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Мои организации</Text>
-            <PagerTitle selected={page} firstLabel={"Одобренные"} secondLabel={"Заявки"} onSelect={changePage}/>
+            <Text style={styles.label}>My organisations</Text>
+            <PagerTitle selected={page} firstLabel={"Approved"} secondLabel={"Requests"} onSelect={changePage}/>
             {
                 state.loading ?
                     <View style={{flex: 1, justifyContent: "center"}}>
@@ -59,7 +59,7 @@ export default function OrganizationsScreen() {
                                 {
                                     state.confirmedCharities.length == 0 ?
                                         <View style={{flex: 1, justifyContent: "center", alignSelf: "center"}}>
-                                            <Text style={styles.hintText}>Нет одобренных организаций</Text>
+                                            <Text style={styles.hintText}>No approved organisations</Text>
                                         </View>
                                         :
                                         <FlatList style={{width: "100%"}} data={state.confirmedCharities}
@@ -81,8 +81,8 @@ export default function OrganizationsScreen() {
                                 {
                                     state.unconfirmedCharities.length == 0 ?
                                         <View style={{flex: 1, justifyContent: "center", alignSelf: "center"}}>
-                                            <Text style={styles.hintText}>Нет заявок на добавление</Text>
-                                            <Button onPress={() => nav.navigate("CreateCharity", {})} text={"Создать"}/>
+                                            <Text style={styles.hintText}>No requests</Text>
+                                            <Button onPress={() => nav.navigate("CreateCharity", {})} text={"Create"}/>
                                         </View>
                                         :
                                         <>
@@ -108,8 +108,8 @@ export default function OrganizationsScreen() {
                         </PagerView>
                         :
                         <View style={{flex: 1, justifyContent: "center"}}>
-                            <Text style={[styles.hintText, {alignSelf: "center"}]}>Ошибка получения данных</Text>
-                            <Button onPress={fetchCharities} text={"Попробовать снова"}/>
+                            <Text style={[styles.hintText, {alignSelf: "center"}]}>Error requesting data</Text>
+                            <Button onPress={fetchCharities} text={"Try again"}/>
                         </View>
             }
         </View>

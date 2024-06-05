@@ -25,7 +25,7 @@ export default function ProfileScreen() {
     const [contactUsContact, setContactUsContact] = useState<string>("")
     const [contactUsTitle, setContactUsTitle] = useState<string>("")
     const [contactUsText, setContactUsText] = useState<string>("")
-    const [loadingTitle, setLoadingTitle] = useState("Создание...")
+    const [loadingTitle, setLoadingTitle] = useState("Creating...")
     const [phone, setPhone] = useState<string>(state.phone)
     const [social, setSocial] = useState<string>(state.social)
 
@@ -36,29 +36,29 @@ export default function ProfileScreen() {
     const contactUsValid = contactUsContact.length != 0 && contactUsText.length != 0 && contactUsTitle.length != 0
 
     const createSupportRequestUI = async () => {
-        setLoadingTitle("Создание...")
+        setLoadingTitle("Creating...")
         try {
             await dispatch(createSupportRequest({
                 contact: contactUsContact,
                 text: contactUsText,
                 title: contactUsTitle
             })).unwrap()
-            Toast.show("Обращение успешно создано", Toast.SHORT)
+            Toast.show("Request created", Toast.SHORT)
             setShowContactUs(false)
         } catch (e) {
-            Toast.show("Не удалось создать обращение", Toast.LONG)
+            Toast.show("Could not create request", Toast.LONG)
             console.log(e)
         }
     }
 
     const updateContactsUI = async () => {
-        setLoadingTitle("Изменение...")
+        setLoadingTitle("Changing...")
         try {
             await dispatch(updateContactsRequest({phone: phone, social: social})).unwrap()
-            Toast.show("Данные успешно обновлены", Toast.SHORT)
+            Toast.show("Information changed", Toast.SHORT)
             setShowChangeContacts(false)
         } catch (e) {
-            Toast.show("Не удалось обновить данные", Toast.LONG)
+            Toast.show("Could not change information", Toast.LONG)
             console.log(e)
         }
     }
@@ -93,33 +93,33 @@ export default function ProfileScreen() {
                     borderRadius: 10,
                     width: "90%"
                 }}>
-                    <Text style={styles.title}>Email или контакт для обратной связи</Text>
+                    <Text style={styles.title}>Email or other contact</Text>
                     <TextInput
                         style={[styles.textInput, {height: textInputHeight}]}
-                        placeholder={"Ваш контакт"}
+                        placeholder={"Your contacts"}
                         autoCorrect={false}
                         onChangeText={(text) => setContactUsContact(text)}
                     />
-                    <Text style={styles.title}>Тема обращения</Text>
+                    <Text style={styles.title}>Request header</Text>
                     <TextInput
                         style={[styles.textInput, {height: textInputHeight}]}
-                        placeholder={"Тема"}
+                        placeholder={"header"}
                         autoCorrect={false}
                         onChangeText={(text) => setContactUsTitle(text)}
                     />
-                    <Text style={styles.title}>Текст обращения</Text>
+                    <Text style={styles.title}>Request details</Text>
                     <TextInput
                         style={[styles.textInput, {
                             height: textInputHeight * 6,
                             textAlignVertical: "top",
                             paddingTop: 2,
                         }]}
-                        placeholder={"Обращение"}
+                        placeholder={"Details"}
                         autoCorrect={false}
                         multiline={true}
                         onChangeText={(text) => setContactUsText(text)}
                     />
-                    <ModalButton onPress={createSupportRequestUI} text={"Отправить"} active={contactUsValid}/>
+                    <ModalButton onPress={createSupportRequestUI} text={"Send"} active={contactUsValid}/>
                 </View>
             </Modal>
 
@@ -133,37 +133,37 @@ export default function ProfileScreen() {
                     borderRadius: 10,
                     width: "90%"
                 }}>
-                    <Text style={styles.title}>Контактный телефон</Text>
+                    <Text style={styles.title}>Contact number</Text>
                     <TextInputMask
                         style={[styles.textInput, {height: textInputHeight}]}
-                        placeholder={"Ваш телефон"}
+                        placeholder={"Your phone number"}
                         value={state.phone}
                         onChangeText={(formatted, extracted) => setPhone(extracted ? "7" + extracted : "")}
                         mask={"+7 ([000]) [000]-[00]-[00]"}
                         inputMode={"tel"}
                     />
-                    <Text style={styles.title}>Соцсеть</Text>
+                    <Text style={styles.title}>Socials</Text>
                     <TextInput
                         style={[styles.textInput, {height: textInputHeight}]}
-                        placeholder={"Соцсеть"}
+                        placeholder={"Socials"}
                         value={social}
                         autoCorrect={false}
                         onChangeText={(text) => setSocial(text)}
                     />
-                    <ModalButton onPress={updateContactsUI} text={"Готово"} active={phone.length == 11}/>
+                    <ModalButton onPress={updateContactsUI} text={"Done"} active={phone.length == 11}/>
                 </View>
             </Modal>
 
             <View style={styles.container}>
                 <View style={{flex: 1, marginTop: "5%"}}>
                     <Button containerStyle={styles.actionButton} onPress={() => setShowContactUs(true)}
-                            text={"Напишите нам"}/>
+                            text={"Contact us"}/>
                     <Button containerStyle={{...styles.actionButton, paddingHorizontal: "5%"}} onPress={() => setShowChangeContacts(true)}
-                            text={"Изменить мои контакты"}/>
+                            text={"Change my contacts"}/>
                 </View>
 
                 <Button containerStyle={{bottom: 10, backgroundColor: PRIMARY_COLOR}}
-                        onPress={() => dispatch(signOut())} text={"Выйти"}/>
+                        onPress={() => dispatch(signOut())} text={"Exit"}/>
             </View>
         </>
 

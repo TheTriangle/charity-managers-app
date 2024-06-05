@@ -23,7 +23,7 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
         try {
             await dispatch(getPosts({campaignID: campaign.id!!})).unwrap()
         } catch (e) {
-            Toast.show("Не удалось загрузить посты", Toast.SHORT)
+            Toast.show("Could not load posts", Toast.SHORT)
         }
     }
 
@@ -44,7 +44,7 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
                 refreshing={postsState.loading}
                 onRefresh={fetchPosts}/>}>
             {!postsState.loading && postsState.error == null && postsState.pinnedPost !== null && <PinnedPost postModel={postsState.pinnedPost!!} collectedAmount={campaign.collectedamount} requiredAmount={campaign.totalamount} charityName={charityName}
-                         options={["Статистика", "Отмена"]} actions={[onStats]} onCommentsClick={() => {nav.navigate("Comments", {post: postsState.pinnedPost, campaignID: campaign.id!!, charityName: charityName})}} containerStyle={{marginVertical: "1%"}}/>}
+                         options={["Statistics", "Cancel"]} actions={[onStats]} onCommentsClick={() => {nav.navigate("Comments", {post: postsState.pinnedPost, campaignID: campaign.id!!, charityName: charityName})}} containerStyle={{marginVertical: "1%"}}/>}
             {postsState.pinnedPost !== null &&
             postsState.posts.map((value, index) => {
                 return  <PostListItem key={index} postModel={value} options={[]} onCommentsClick={() => {nav.navigate("Comments", {post: value, campaignID: campaign.id!!, charityName: charityName})}}
@@ -54,7 +54,7 @@ export default function CampaignScreen({route: {params: {campaign, charityName}}
         </ScrollView>
         {(campaign.closed == undefined || !campaign.closed) && !postsState.loading && <View style={{position: "absolute", alignSelf: "center", bottom: 20, opacity: 0.8}}>
             <Button containerStyle={{backgroundColor: PRIMARY_COLOR}}
-                    onPress={() => nav.navigate("CreatePost", {campaignID: campaign.id!!})} text={"Добавить пост"}/>
+                    onPress={() => nav.navigate("CreatePost", {campaignID: campaign.id!!})} text={"Create post"}/>
         </View>}
 
     </View>

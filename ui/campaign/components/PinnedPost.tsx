@@ -23,7 +23,7 @@ export default function PinnedPost({postModel, charityName, collectedAmount, req
 }) {
     const fillPercentage = requiredAmount == 0 ? 100 :
         (collectedAmount > requiredAmount ? 100 : (collectedAmount / requiredAmount) * 100)
-    const collected = requiredAmount == 0 ? `Собрано ${collectedAmount}` : `Собрано ${collectedAmount} из ${requiredAmount}`
+    const collected = requiredAmount == 0 ? `Collected ${collectedAmount}` : `Collected ${collectedAmount} out of ${requiredAmount}`
 
     return <View style={[styles.container, containerStyle]}>
         <View style={{position: "absolute", right: 0, marginTop: 10}}>

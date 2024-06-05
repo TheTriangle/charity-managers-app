@@ -61,7 +61,7 @@ export default function PostCreationScreen({route: {params: {campaignID}}}: Post
             await dispatch(createPost({post: post, campaignID: campaignID})).unwrap()
             nav.pop()
         } catch (e) {
-            Toast.show("Ошибка при создании поста", Toast.SHORT)
+            Toast.show("Post creation error", Toast.SHORT)
         }
     }
 
@@ -85,24 +85,24 @@ export default function PostCreationScreen({route: {params: {campaignID}}}: Post
     return <>
         <Spinner
             visible={state.createLoading}
-            textContent={'Публикация...'}
+            textContent={'Publication...'}
             textStyle={{color: "white"}}
         />
 
         <View style={styles.container}>
 
-            <Text style={[styles.header, {marginVertical: "1%", alignSelf: "center"}]}>Создать пост</Text>
-            <Text style={[styles.title, {marginVertical: "1%"}]}>Название</Text>
+            <Text style={[styles.header, {marginVertical: "1%", alignSelf: "center"}]}>Create post</Text>
+            <Text style={[styles.title, {marginVertical: "1%"}]}>Name</Text>
 
             <TextInput
                 style={{...styles.textInput, height: "5%"}}
-                placeholder={"Название"}
+                placeholder={"Name"}
                 autoCorrect={false}
                 maxLength={70}
                 onChangeText={(text) => setTitle(text)}
             />
 
-            <Text style={[styles.title, {marginVertical: "1%"}]}>Описание</Text>
+            <Text style={[styles.title, {marginVertical: "1%"}]}>Description</Text>
 
             <TextInput multiline={true}
                        style={[styles.textInput, {
@@ -113,8 +113,8 @@ export default function PostCreationScreen({route: {params: {campaignID}}}: Post
                        }]}
 
                        onChangeText={(text) => setFullDesc(text)}
-                       placeholder={"Описание"}/>
-            <Text style={[styles.title, {marginVertical: "1%"}]}>Прикрепите вложения</Text>
+                       placeholder={"Description"}/>
+            <Text style={[styles.title, {marginVertical: "1%"}]}>Add attachments</Text>
 
             <ImageRow onClick={undefined} source={images} setSource={(newImages) => {
                 setImages(newImages)
@@ -122,7 +122,7 @@ export default function PostCreationScreen({route: {params: {campaignID}}}: Post
 
             {files.length < 2 &&
                 <LargeIconButton containerStyle={{height: screenHeight * 0.06, marginVertical: "2%"}}
-                                 onPress={selectFiles} text={"Добавить документ"}/>}
+                                 onPress={selectFiles} text={"Attach document"}/>}
 
             {files.map((value, index) => {
                 return <FileViewComponent key={index} containerStyle={{height: screenHeight * 0.06, marginVertical: "1%"}}
@@ -136,7 +136,7 @@ export default function PostCreationScreen({route: {params: {campaignID}}}: Post
 
 
         </View>
-        <Button containerStyle={{marginVertical: "1%", backgroundColor: PRIMARY_COLOR, bottom: "2%"}} inactiveColor={PRIMARY_COLOR_60} onPress={reqCreatePost} text={"Опубликовать"}
+        <Button containerStyle={{marginVertical: "1%", backgroundColor: PRIMARY_COLOR, bottom: "2%"}} inactiveColor={PRIMARY_COLOR_60} onPress={reqCreatePost} text={"Publish"}
                 active={formValid()}
         />
     </>

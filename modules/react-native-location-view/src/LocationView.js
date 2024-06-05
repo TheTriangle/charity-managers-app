@@ -35,7 +35,7 @@ export default class LocationView extends React.Component {
 
   static defaultProps = {
     markerColor: 'black',
-    actionText: 'Готово',
+    actionText: 'Done',
     onLocationSelect: () => ({}),
     debounceDuration: 300,
     components: [],

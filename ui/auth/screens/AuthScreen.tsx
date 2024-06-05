@@ -28,24 +28,24 @@ export default function AuthScreen() {
     const [validPassword, setValidPassword] = useState(true)
     const [forgotPassVisible, setForgotPassVisible] = useState(false)
     const [recoveryEmail, setRecoveryEmail] = useState("")
-    const [loadingTitle, setLoadingTitle] = useState("Авторизация...")
+    const [loadingTitle, setLoadingTitle] = useState("Authentication...")
 
     const screenHeight = useSafeAreaFrame().height;
     const textInputHeight = screenHeight * 0.04
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     
     const signInGoogle = async () => {
-        setLoadingTitle("Авторизация...")
+        setLoadingTitle("Authentication...")
         try {
             await dispatch(signInAsyncGoogle()).unwrap()
             console.log("logged in as: " + auth.currentUser?.uid)
         } catch (e) {
             if (isFirebaseError(e)) {
                 if (e.code != "12501") {
-                    Toast.show("Ошибка авторизации", Toast.LONG)
+                    Toast.show("Authentication error", Toast.LONG)
                 }
             } else {
-                Toast.show("Ошибка авторизации", Toast.LONG)
+                Toast.show("Authentication error", Toast.LONG)
             }
             console.log("Google auth error: " + authState.error)
         }
@@ -65,13 +65,13 @@ export default function AuthScreen() {
                 style: 'cancel',
             },
             {
-                text: 'Да',
+                text: 'Yes',
                 onPress: async () => {
                     if (validatePassword()) {
                         await dispatch(signUpAsyncEmail({email, password})).unwrap()
                         console.log("logged in as: " + auth.currentUser?.uid)
                     } else {
-                        Alert.alert('Некорректный пароль', 'Пароль должен быть длиной от 8 до 32 символов, состоять из латнских символов, содержать минимум одну заглавную, одну строчную и одну цифру.');
+                        Alert.alert('Incorrect password', 'Password must be 8 to 32 characters long, include at minimum 1 capital letter, 1 number and special symbol.');
                     }
                 },
             },
@@ -79,7 +79,7 @@ export default function AuthScreen() {
     );
 
     const signInEmail = async () => {
-        setLoadingTitle("Авторизация...")
+        setLoadingTitle("Authentication...")
         try {
             const methods = await userExists(email)
             console.log(methods)
@@ -88,26 +88,26 @@ export default function AuthScreen() {
                 console.log("logged in as: " + auth.currentUser?.uid)
                 return
             } else if (methods & (AuthMethods.APPLE | AuthMethods.GOOGLE)) {
-                loginAlert("Способ входа не найден", "Похоже, вы уже зарегистрированы при помощи аккаунта Apple или Google.\n" +
-                    "Вы можете продолжить и добавить введенный пароль к своему аккаунту или войти через платформу\n" +
-                    "Вы хотите добавить введенный пароль?")
+                loginAlert("Could not enter", "It seems you are already logged into with Apple or Google account.\n" +
+                    "You can continue and add the provided password to the account\n" +
+                    "Do you want to add the password?")
             } else {
-                loginAlert("Пользователь не найден", "Пользователь с указанной электронной почтой не найден.\n" +
-                    "Вы хотите зарегистрироваться с этими данными?")
+                loginAlert("User not found", "User with specified mail not found.\n" +
+                    "Do you want to registers with this parameters?")
             }
         } catch (e) {
             if (isFirebaseError(e)) {
                 if (e.code == "auth/wrong-password") {
-                    Toast.show("Введен неверный пароль", Toast.LONG)
+                    Toast.show("Incorrect password", Toast.LONG)
                 }
                 if (e.code == "auth/invalid-email") {
-                    Toast.show("Введен некорректный адрес электронной почты", Toast.LONG)
+                    Toast.show("Incorrect email", Toast.LONG)
                 }
                 if (e.code == "auth/too-many-requests") {
-                    Toast.show("Слишком много попыток входа в аккаунт, попробуйте позднее", Toast.LONG)
+                    Toast.show("Too many requests, try again later", Toast.LONG)
                 }
                 if (e.code == "auth/network-request-failed") {
-                    Toast.show("Нет подключения к интернету", Toast.LONG)
+                    Toast.show("No internet connection", Toast.LONG)
                 }
             }
             console.log("Email auth error: " + e)
@@ -115,25 +115,25 @@ export default function AuthScreen() {
     }
 
     const requestPassRecovery = async () => {
-        setLoadingTitle("Отправка...")
+        setLoadingTitle("Sending...")
         try {
             await dispatch(resetPass(recoveryEmail.toLowerCase())).unwrap()
             setForgotPassVisible(false)
             setRecoveryEmail("")
-            Toast.show("Письмо отправлено на указанную почту", Toast.SHORT)
+            Toast.show("Letter sent to specified email", Toast.SHORT)
         } catch (e) {
             if (isFirebaseError(e)) {
                 if (e.code == "auth/user-not-found") {
-                    Toast.show("Пользователь не найден", Toast.LONG)
+                    Toast.show("User not found", Toast.LONG)
                 }
                 if (e.code == "auth/invalid-email") {
-                    Toast.show("Введен некорректный адрес электронной почты", Toast.LONG)
+                    Toast.show("Incorrect email address", Toast.LONG)
                 }
                 if (e.code == "auth/too-many-requests") {
-                    Toast.show("Слишком много попыток входа в аккаунт, попробуйте позднее", Toast.LONG)
+                    Toast.show("Too many attempts, try again later", Toast.LONG)
                 }
                 if (e.code == "auth/network-request-failed") {
-                    Toast.show("Нет подключения к интернету", Toast.LONG)
+                    Toast.show("No internet connection", Toast.LONG)
                 }
             }
             console.log(e)
@@ -163,7 +163,7 @@ export default function AuthScreen() {
                     borderRadius: 10,
                     width: "90%"
                 }}>
-                    <Text style={styles.title}>Ваш email чтобы восстановить пароль</Text>
+                    <Text style={styles.title}>Your recovery email</Text>
                     <TextInput
                         style={[styles.textInput, {height: textInputHeight}]}
                         placeholder={"Email"}
@@ -171,7 +171,7 @@ export default function AuthScreen() {
                         value={recoveryEmail}
                         onChangeText={(text) => setRecoveryEmail(text)}
                     />
-                    <ModalButton onPress={requestPassRecovery} text={"Отправить"} active={emailRegex.test(recoveryEmail.toLowerCase())}/>
+                    <ModalButton onPress={requestPassRecovery} text={"Send"} active={emailRegex.test(recoveryEmail.toLowerCase())}/>
                 </View>
             </Modal>
 
@@ -207,14 +207,14 @@ export default function AuthScreen() {
                     width: "70%",
                     height: "5%"
                 }, validPassword ? {} : {borderColor: BORDER_COLOR_RED}]}
-                           placeholder={"Пароль"}
+                           placeholder={"Password"}
                            secureTextEntry={true}
                            maxLength={32}
                            onChangeText={(text) => setPassword(text)}
                            onFocus={() => setValidPassword(true)}
                 />
 
-                <AuthButton text={"Продолжить по Email"} onPress={() => {
+                <AuthButton text={"Continue with Email"} onPress={() => {
                     if (!validateEmail(email)) {
                         setValidEmail(false)
                         return
@@ -233,7 +233,7 @@ export default function AuthScreen() {
                     onPress={signInGoogle}
                 />
                 <TouchableOpacity activeOpacity={0.7} style={{padding: "4%"}} onPress={() => setForgotPassVisible(true)}>
-                    <Text style={styles.forgotPassword}>Забыли пароль?</Text>
+                    <Text style={styles.forgotPassword}>Forgot password?</Text>
                 </TouchableOpacity>
             </View>
 

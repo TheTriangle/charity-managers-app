@@ -34,7 +34,7 @@ const TagSelect = reactNativeTagSelect.TagSelect
 
 export default function CharityCreationScreen({route: {params: {charity: existingCharity, location, id}}}: CreateCharityProps) {
 
-    const btns = [{id: 1, title: "Частный сбор"}, {id: 2, title: "НКО"}]
+    const btns = [{id: 1, title: "Personal fundraising"}, {id: 2, title: "Registered organisation"}]
     const [selected, setSelected] = useState<number[]>(existingCharity ? existingCharity.organization ? [2] : [1] : [1])
     const [name, setName] = useState<string>(existingCharity ? existingCharity.name : "")
     const [briefDesc, setBriefDesc] = useState<string>(existingCharity ? existingCharity.briefDescription : "")
@@ -129,7 +129,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
 
             }
             console.log(error)
-            Toast.show("Не удалось оствить заявку", Toast.LONG)
+            Toast.show("Could not leave request", Toast.LONG)
         }
     }
 
@@ -137,17 +137,17 @@ export default function CharityCreationScreen({route: {params: {charity: existin
 
         <Spinner
             visible={state.editLoading}
-            textContent={'Создание заявки...'}
+            textContent={'Creating request...'}
             textStyle={{color: "white"}}
         />
         <View style={styles.container}>
-            <Text style={[styles.header]}>Информация об организации</Text>
+            <Text style={[styles.header]}>Organisation's information</Text>
             <ButtonRow data={btns} onPress={handleButtonPress} selected={selected}
                        buttonContainerStyle={{width: "40%", alignItems: "center"}}/>
-            <Text style={[styles.title, {marginVertical}]}>Для благотворителей</Text>
+            <Text style={[styles.title, {marginVertical}]}>For donors</Text>
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
-                placeholder={"Краткое название (нельзя будет изменить)"}
+                placeholder={"Short name (you will not be able to change this later)"}
                 autoCorrect={false}
                 value={name}
                 maxLength={70}
@@ -164,7 +164,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                        maxLength={300}
                        value={briefDesc}
                        onChangeText={(text) => setBriefDesc(text)}
-                       placeholder={"Краткое описание"}/>
+                       placeholder={"Short Description"}/>
             <TextInput multiline={true}
                        style={[styles.textInput, {
                            height: screenHeight * 0.22,
@@ -174,7 +174,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                        }]}
                        value={fullDesc}
                        onChangeText={(text) => setFullDesc(text)}
-                       placeholder={"Полное описание"}/>
+                       placeholder={"Full description"}/>
             <View style={{
                 flexDirection: "row",
                 height: textInputHeight,
@@ -184,7 +184,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                 <SvgXml xml={iconSocial} style={{marginRight: "1%"}}/>
                 <TextInput
                     style={{...styles.textInput, flex: 1, height: "100%"}}
-                    placeholder={"Сайт или аккаунт в соц. сети"}
+                    placeholder={"Website or social network account"}
                     value={social}
                     autoCorrect={false}
                     onChangeText={(text) => setSocial(text)}
@@ -205,7 +205,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                 })}>
                     <TextInput
                         style={{...styles.textInput, flex: 1, height: "100%", marginVertical: 0, color: "black"}}
-                        placeholder={"Адрес (необязательно)"}
+                        placeholder={"Address (optional)"}
                         value={selectedAddress}
                         autoCorrect={false}
                         editable={false}
@@ -214,7 +214,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
 
             </View>
             <Text>
-                На что направлена работа организации?
+                What kind of work does your organisation do?
             </Text>
             <View style={{marginVertical: marginVertical}}>
                 <TagSelect
@@ -232,11 +232,11 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                     }}
                 />
             </View>
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Для регистрации на платформе</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>To register on the platform</Text>
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                 value={fullName}
-                placeholder={"Полное название"}
+                placeholder={"Full name"}
                 autoCorrect={false}
                 onChangeText={(text) => setFullName(text)}
             />
@@ -246,7 +246,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                         <TextInput
                             style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                             value={ogrn}
-                            placeholder={"ОГРН"}
+                            placeholder={"Tax ID"}
                             autoCorrect={false}
                             maxLength={13}
                             onChangeText={(text) => handleOgrnChange(text)}
@@ -254,7 +254,7 @@ export default function CharityCreationScreen({route: {params: {charity: existin
                         <TextInput
                             style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                             value={egrul}
-                            placeholder={"ЕГРЮЛ"}
+                            placeholder={"Registration number"}
                             autoCorrect={false}
                             maxLength={15}
                             onChangeText={(text) => handleEgrulChange(text)}
@@ -265,11 +265,11 @@ export default function CharityCreationScreen({route: {params: {charity: existin
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                 value={managerContact}
-                placeholder={"Ваш контакт для связи"}
+                placeholder={"Your contacts"}
                 autoCorrect={false}
                 onChangeText={(text) => setManagerContact(text)}
             />
-            <Button containerStyle={{marginVertical: marginVertical}} onPress={requestCreateCharity} text={"Готово"}
+            <Button containerStyle={{marginVertical: marginVertical}} onPress={requestCreateCharity} text={"Done"}
                     active={formValid()}
             />
         </View>

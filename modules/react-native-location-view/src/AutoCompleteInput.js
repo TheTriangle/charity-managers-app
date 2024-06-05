@@ -126,10 +126,10 @@ export default class AutoCompleteInput extends React.Component {
         <View style={styles.textInputContainer} elevation={5}>
           <TextInput
             ref={input => (this._input = input)}
-            value={this.state.loading ? 'Загрузка...' : this.state.text}
+            value={this.state.loading ? 'Loading...' : this.state.text}
             style={styles.textInput}
             underlineColorAndroid={'transparent'}
-            placeholder={'Поиск'}
+            placeholder={'Search'}
             onFocus={this._onFocus}
             onBlur={this._onBlur}
             onChangeText={this._onChangeText}

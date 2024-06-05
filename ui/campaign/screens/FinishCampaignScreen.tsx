@@ -48,7 +48,7 @@ export default function FinishCampaignScreen({route: {params: {campaign}}}: Fini
 
     const fillPercentage = campaign.totalamount == 0 ? 0 :
         (campaign.collectedamount > campaign.totalamount ? 100 : (campaign.collectedamount / campaign.totalamount) * 100)
-    const collected = campaign.totalamount == 0 ? `Собрано ${campaign.collectedamount}` : `Собрано ${campaign.collectedamount} из ${campaign.totalamount}`
+    const collected = campaign.totalamount == 0 ? `Collected ${campaign.collectedamount}` : `Collected ${campaign.collectedamount} out of ${campaign.totalamount}`
 
 
     const dispatch = useAppDispatch()
@@ -76,7 +76,7 @@ export default function FinishCampaignScreen({route: {params: {campaign}}}: Fini
             await dispatch(finishCampaign({post: post, campaignID: campaign.id!!})).unwrap()
             nav.pop()
         } catch (e) {
-            Toast.show("Ошибка при создании поста", Toast.SHORT)
+            Toast.show("Post creation error", Toast.SHORT)
         }
     }
 
@@ -100,7 +100,7 @@ export default function FinishCampaignScreen({route: {params: {campaign}}}: Fini
     return <ScrollView>
         <Spinner
             visible={state.createLoading}
-            textContent={'Публикация...'}
+            textContent={'Publication...'}
             textStyle={{color: "white"}}
         />
 
@@ -119,27 +119,27 @@ export default function FinishCampaignScreen({route: {params: {campaign}}}: Fini
 
             <Pressable style={{flexDirection: "row", flex: 1, alignItems: "center", marginVertical: marginVertical}} onPress={() => {setCollectedFull(prev => !prev)}}>
                 <Checkbox onChange={() => {setCollectedFull(prev => !prev)}} checked={collectedFull}/>
-                <Text style={{marginLeft: 10}} >Сумма успешно собрана</Text>
+                <Text style={{marginLeft: 10}} >Collected succesfully</Text>
             </Pressable>
 
             <Pressable style={{flexDirection: "row", flex: 1, alignItems: "center", marginVertical: marginVertical}} onPress={() => {setNotify(prev => !prev)}}>
                 <Checkbox onChange={() => {setNotify(prev => !prev)}} checked={notify}/>
-                <Text style={{marginLeft: 10}} >Уведомить жертвователей</Text>
+                <Text style={{marginLeft: 10}} >Notify donors</Text>
             </Pressable>
 
 
-            <Text style={[styles.header, {marginVertical: marginVertical, alignSelf: "center"}]}>Пост о закрытии сбора</Text>
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Название</Text>
+            <Text style={[styles.header, {marginVertical: marginVertical, alignSelf: "center"}]}>Finishing post</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Name</Text>
 
             <TextInput
                 style={{...styles.textInput, height: textInputHeight}}
-                placeholder={"Название"}
+                placeholder={"Name"}
                 autoCorrect={false}
                 maxLength={70}
                 onChangeText={(text) => setTitle(text)}
             />
 
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Описание</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Description</Text>
 
             <TextInput multiline={true}
                        style={[styles.textInput, {
@@ -150,8 +150,8 @@ export default function FinishCampaignScreen({route: {params: {campaign}}}: Fini
                        }]}
 
                        onChangeText={(text) => setFullDesc(text)}
-                       placeholder={"Описание"}/>
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Прикрепите вложения</Text>
+                       placeholder={"Description"}/>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Add attachments</Text>
 
             <ImageRow onClick={undefined} source={images} setSource={(newImages) => {
                 setImages(newImages)
@@ -159,7 +159,7 @@ export default function FinishCampaignScreen({route: {params: {campaign}}}: Fini
 
             {files.length < 2 &&
                 <LargeIconButton containerStyle={{height: screenHeight * 0.06, marginVertical: marginVertical * 2}}
-                                 onPress={selectFiles} text={"Добавить документ"}/>}
+                                 onPress={selectFiles} text={"Add document"}/>}
 
             {files.map((value, index) => {
                 return <FileViewComponent key={index}
@@ -175,7 +175,7 @@ export default function FinishCampaignScreen({route: {params: {campaign}}}: Fini
 
         </View>
         <Button containerStyle={{marginVertical: marginVertical, backgroundColor: "#CC1D00", bottom: marginVertical * 2}}
-                inactiveColor={"rgba(204,29,0,0.6)"} onPress={reqCreatePost} text={"Закрыть сбор"}
+                inactiveColor={"rgba(204,29,0,0.6)"} onPress={reqCreatePost} text={"Close campaign"}
                 active={formValid()}
         />
     </ScrollView>

@@ -1,3 +1,58 @@
+## Privacy Policy
+
+**Effective date:** 05/13/2024
+
+We, Vasin Egor Danilovich, value your trust in us and are committed to protecting your privacy. This privacy policy explains how we collect, use and disclose your personal information when you use the Mobile App.
+
+### 1. Information collected
+
+When using the application we may collect the following types of information:
+
+- **Information provided by you:** this includes contact details of the charity manager (which cannot be distributed), legal details of the organization, such as OGRN and Unified State Register of Legal Entities, as well as the wallet number on the YuMoney platform for fundraising.
+
+- **Photos and PDFs:** When you create a fundraiser in the app, you can attach photos and PDFs that will be displayed in the donor app.
+
+- **Usage Information:** We may collect information about your interaction with the application, such as actions you take within the application and information about your device.
+
+### 2. Use of collected information
+
+We use the collected information for the following purposes:
+
+- **Service Provision and Support:** We use your information for organization registrations and fees, and to operate the application.
+
+- **App Improvement:** We analyze app usage information to understand how to improve it and make it more user-friendly.
+
+- **Security:** We use your information to protect the security of our application and users.
+
+### 3. Disclosure
+
+We do not sell, rent or disclose your personal information to third parties without your consent, except as described in this privacy policy or as required by law.
+
+### 4. Data storage
+
+We use the Firebase platform to store user data. Firebase provides secure and reliable data storage with appropriate protection measures.
+
+### 5. Security
+
+We take all measures reasonably necessary to protect your personal information from unauthorized access, use or disclosure. However, no method of transmission over the Internet, or method of electronic storage is 100% secure, and we cannot guarantee the absolute security of your data.
+
+### 6. Your rights
+
+You may request access to, correction of errors in, or removal of your personal information from our system at any time. To do this, please contact us using the contact details below.
+
+### 7. Changes to the privacy policy
+
+We reserve the right to make changes to our privacy policy. If we make material changes, we will notify you by posting an updated version of the privacy policy in the application.
+
+### 8. Contacts
+
+If you have questions or suggestions regarding our privacy policy, please contact us at the following contact details:
+
+smiruponitkesuppor@gmail.com
+
+Thanks for using our application. We value your privacy and strive to ensure a safe and comfortable experience with us.
+
+
 ## Политика конфиденциальности
 
 **Дата вступления в силу:** 13.05.2024

@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/app_icon.png",
     "userInterfaceStyle": "light",
-    "plugins": ["@react-native-google-signin/google-signin"],
     "splash": {
       "image": "./assets/app_icon.png",
       "resizeMode": "contain",
@@ -16,11 +15,19 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
       "googleServicesFile": "./GoogleService-Info.plist",
-      "bundleIdentifier": "ru.hse.managersapp"
+      "bundleIdentifier": "ru.hse.managersapp",
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyDR9HPuGqn0Klyh-6R5t63A2NYCRDdiJ7s"
+      }
     },
     "android": {
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDR9HPuGqn0Klyh-6R5t63A2NYCRDdiJ7s"
+        }
+      },
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/app_icon.png",
@@ -30,6 +37,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "359c4203-5e10-4482-b46f-0ace887b4dcf"
+      }
     }
   }
 }

@@ -58,7 +58,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
     const [files, setFiles] = useState<{ uri: string, name: string }[]>([])
     const [docID, setDocID] = useState<string | undefined>(undefined)
     const [notificationsConfirmed, setNotificationsConfirmed] = useState(false)
-    const [loadingTitle, setLoadingTitle] = useState("Создание")
+    const [loadingTitle, setLoadingTitle] = useState("Creation")
     const [highPriority, setHighPriority] = useState(false)
 
     const ref = useRef<typeof TagSelect>()
@@ -77,7 +77,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
     const copyToClipboard = async (text: string) => {
         await Clipboard.setStringAsync(text);
-        Toast.show("Ссылка скопирована", Toast.SHORT)
+        Toast.show("Link copied", Toast.SHORT)
     };
 
 
@@ -110,16 +110,16 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
         try {
             if (notificationsConfirmed && docID) {
-                setLoadingTitle("Создание")
+                setLoadingTitle("Creation")
                 await dispatch(createCampaign({documentID: docID, campaign: campaign, pinnedPost: post})).unwrap()
                 nav.pop()
             } else {
-                Toast.show("Для создания кампании необходимо указать платежные данные", Toast.LONG)
+                Toast.show("Fill in payment data to create charity", Toast.LONG)
             }
 
         } catch (e) {
             console.log(e)
-            Toast.show("Не создать кампанию", Toast.LONG)
+            Toast.show("Creation cancelled", Toast.LONG)
         }
 
     }
@@ -143,22 +143,22 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
     const createPayment = async () => {
         if (!/^\d{16}$/.test(paymentAccount)) {
-            Toast.show("Номер кошелька должен состоять из 16 цифр", Toast.LONG);
+            Toast.show("Wallet number must include 16 digits", Toast.LONG);
             return;
         }
         if (secretKey.length !== 24) {
-            Toast.show("Секретный ключ должен состоять из 24 символов", Toast.LONG);
+            Toast.show("Secret key must consist of 24 symbols", Toast.LONG);
             return;
         }
 
         try {
             setNotificationsConfirmed(false)
-            setLoadingTitle("Отправка")
+            setLoadingTitle("Sending")
             const id = await dispatch(requestCreatePayment({secret: secretKey, yoomoney: paymentAccount})).unwrap()
             setDocID(id)
         } catch (e) {
             console.log(e)
-            Toast.show("Не удалось отправить данные", Toast.LONG)
+            Toast.show("Could not send data", Toast.LONG)
         }
     }
 
@@ -166,21 +166,21 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
         try {
 
             if (docID === undefined || docID.length == 0) {
-                Toast.show("Сначала необходимо отправить платежные данные", Toast.LONG)
+                Toast.show("Must send payment data first", Toast.LONG)
                 return
             }
-            setLoadingTitle("Проверка")
+            setLoadingTitle("Checking")
             const confirmed = await dispatch(getPaymentConfirmation({campaign: docID})).unwrap()
             setNotificationsConfirmed(confirmed)
             if (confirmed) {
-                Toast.show("Кошелек успешно привязан!", Toast.SHORT)
+                Toast.show("Wallet confirmed!", Toast.SHORT)
             } else {
-                Toast.show("Не удалось подтвердить кошелек, убедитесь, что уведомление ЮMoney отправлено", Toast.SHORT)
+                Toast.show("Could not confirm wallet, make sure YooMoney notification was sent", Toast.SHORT)
             }
 
         } catch (e) {
             console.log(e)
-            Toast.show("Не удалось получить данные", Toast.LONG)
+            Toast.show("Could not receive data", Toast.LONG)
         }
     }
 
@@ -227,34 +227,32 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                 padding: 15,
                 borderRadius: 10
             }}>
-                <Text>1. Зарегистрируйте кошелек на <Text style={hyperlink}
+                <Text>1. Register wallet at <Text style={hyperlink}
                                                           onPress={() => Linking.openURL("https://yoomoney.ru/")}>https://yoomoney.ru/</Text> {"\n"}
-                    2. Скопируйте номер кошелька из личного кабинета по адресу <Text style={hyperlink}
+                    2. Copy wallet number from your profile at <Text style={hyperlink}
                                                                                      onPress={() => Linking.openURL("https://yoomoney.ru/settings")}>https://yoomoney.ru/settings</Text>{"\n"}
-                    3. Введите номер кошелька в поле ниже{"\n"}
-                    4. Перейдите на страницу <Text style={hyperlink}
-                                                   onPress={() => Linking.openURL("https://yoomoney.ru/transfer/myservices/http-notification")}>https://yoomoney.ru/transfer/myservices/http-notification</Text> и
-                    скопируйте
-                    секретный ключ для проверки подлинности(он используется только для валидации уведомлений){"\n"}
-                    5. Вставьте секретный ключ в поле "Секрет" в приложении и нажмите отправить{"\n"}
-                    6. Скопируйте url из раздела "Обновление данных о сборе"{"\n"}
-                    7. Вставьте url в поле "Куда отправлять" на той же странице ЮMoney и нажмите
-                    "Протестировать"{"\n"}
-                    8. Нажмите на кнопку "Проверить" в приложении</Text>
+                    3. Enter wallet number in the field below{"\n"}
+                    4. Go to the page <Text style={hyperlink}
+                                                   onPress={() => Linking.openURL("https://yoomoney.ru/transfer/myservices/http-notification")}>https://yoomoney.ru/transfer/myservices/http-notification</Text> and
+                    Copy the secret key (it is used only to validate your notifications){"\n"}
+                    5. Paste the secret key to the "Secret" field and press send{"\n"}
+                    6. Copy url from "campaign data update" section {"\n"}
+                    7. Past url to the "Sending target" on the YooMoney page and press "test"{"\n"}
+                    8. Click "check" in the application</Text>
             </View>
         </Modal>
         <View style={styles.container}>
-            <Text style={styles.header}>Платежные данные</Text>
+            <Text style={styles.header}>Payment data</Text>
 
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Номер кошелька ЮMoney</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>YooMoney wallet number</Text>
 
-            <Button onPress={() => setShowModal(true)} text={"Как заполнить?"}
+            <Button onPress={() => setShowModal(true)} text={"How to fill?"}
                     containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}}
                     textStyle={{fontSize: 14, paddingHorizontal: "10%"}}/>
 
             <TextInput
                 style={{...styles.textInput, height: textInputHeight}}
-                placeholder={"Кошелек"}
+                placeholder={"Wallet"}
                 autoCorrect={false}
                 keyboardType={"numeric"}
                 maxLength={16}
@@ -263,7 +261,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             />
 
             <Text style={styles.title}>
-                Тэги
+                Tags
             </Text>
             <View style={{marginVertical: marginVertical}}>
                 <TagSelect
@@ -280,23 +278,22 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                     }}
                 />
             </View>
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Обновление данных о сборе</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Campaign data udate</Text>
 
-            <Text style={{marginVertical: marginVertical}}>Вставьте ваш секретный ключ в поле ниже:</Text>
+            <Text style={{marginVertical: marginVertical}}>Paste your secret key here:</Text>
 
             <TextInput
                 style={{...styles.textInput, height: textInputHeight}}
-                placeholder={"Секрет"}
+                placeholder={"Secret"}
                 autoCorrect={false}
                 onChangeText={(text) => setSecretKey(text)}
             />
 
-            <Button onPress={createPayment} text={"Отправить"}
+            <Button onPress={createPayment} text={"Send"}
                     containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}}
                     textStyle={{fontSize: 14, paddingHorizontal: "10%"}}/>
 
-            <Text style={{marginVertical: marginVertical}}>В разделе HTTP-Уведомления укажите следующий url и нажмите
-                “протестировать”:</Text>
+            <Text style={{marginVertical: marginVertical}}>In the http-notifications section paste the following url and press "test":</Text>
             {docID && <View style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -309,18 +306,18 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                         onPress={() => copyToClipboard(`https://us-central1-donapp-d2378.cloudfunctions.net/updatePayment/${docID}`)}/>
             </View>}
 
-            <Button onPress={getConfirmation} text={"Проверить"}
+            <Button onPress={getConfirmation} text={"Check"}
                     containerStyle={{paddingHorizontal: "5%", alignSelf: "flex-start"}}
                     textStyle={{fontSize: 14, paddingHorizontal: "10%"}}/>
 
 
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Ограничение по времени</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Time limit</Text>
 
             <Pressable style={{height: textInputHeight, width: "100%", marginBottom: marginVertical * 2}}
                        onPress={() => setDatePickerOpen(true)}>
                 <TextInput
                     style={{...styles.textInput, height: "100%", color: "black"}}
-                    placeholder={"дд/мм/гггг (необязательно)"}
+                    placeholder={"dd/mm/yyyy (optional)"}
                     editable={false}
                     value={date ? formatter.format(date) : ""}
 
@@ -328,12 +325,12 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
             </Pressable>
 
 
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Необходимая сумма</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Required amount</Text>
 
             <View style={{width: "100%", height: textInputHeight}}>
                 <TextInput
                     style={{...styles.textInput, height: "100%"}}
-                    placeholder={"Сумма (необязательно)"}
+                    placeholder={"Amount (optional)"}
                     autoCorrect={false}
                     value={amount}
                     keyboardType={"numeric"}
@@ -344,23 +341,22 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
             <Pressable style={{flexDirection: "row", flex: 1, alignItems: "center", marginTop: marginVertical * 3}} onPress={() => {setHighPriority(prev => !prev)}}>
                 <Checkbox onChange={() => {setHighPriority(prev => !prev)}} checked={highPriority}/>
-                <Text style={{marginLeft: 10}}>Срочный сбор</Text>
+                <Text style={{marginLeft: 10}}>Urgent campaign</Text>
             </Pressable>
 
-            <Text style={[styles.header, {marginVertical: marginVertical, marginTop: marginVertical * 2}]}>Главная
-                запись</Text>
+            <Text style={[styles.header, {marginVertical: marginVertical, marginTop: marginVertical * 2}]}>Main post</Text>
 
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Название (также название кампании)</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Name (Also campaign's name)</Text>
 
             <TextInput
                 style={{...styles.textInput, height: textInputHeight}}
-                placeholder={"Название"}
+                placeholder={"Name"}
                 maxLength={70}
                 autoCorrect={false}
                 onChangeText={(text) => setTitle(text)}
             />
 
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Описание</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Description</Text>
 
             <TextInput multiline={true}
                        style={[styles.textInput, {
@@ -371,8 +367,8 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
                        }]}
 
                        onChangeText={(text) => setFullDesc(text)}
-                       placeholder={"Описание"}/>
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Прикрепите вложения</Text>
+                       placeholder={"Description"}/>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Attachments</Text>
 
             <ImageRow onClick={undefined} source={images} setSource={(newImages) => {
                 setImages(newImages)
@@ -380,7 +376,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
             {files.length < 2 &&
                 <LargeIconButton containerStyle={{height: screenHeight * 0.06, marginVertical: marginVertical}}
-                                 onPress={selectFiles} text={"Добавить документ"}/>}
+                                 onPress={selectFiles} text={"Add document"}/>}
 
             {files.map((value, index) => {
                 return <FileViewComponent key={index}
@@ -393,7 +389,7 @@ export default function CampaignCreationScreen({route: {params: {charityID}}}: C
 
             })}
 
-            <Button containerStyle={{marginVertical: marginVertical}} onPress={requestCreateCampaign} text={"Готово"}
+            <Button containerStyle={{marginVertical: marginVertical}} onPress={requestCreateCampaign} text={"Done"}
                     active={formValid()}
             />
         </View>

@@ -37,7 +37,7 @@ export default function App() {
                         }
                     }
                     await store.dispatch(signOut()).unwrap()
-                    Toast.show("Ошибка авторизации", Toast.LONG)
+                    Toast.show("Authentication error", Toast.LONG)
                 }
             }
             setAppIsReady(true)
@@ -58,12 +58,12 @@ export default function App() {
 
     if (noInternet) {
         return <View style={{flex: 1, alignItems: "center", justifyContent: "center"}} onLayout={onLayoutRootView}>
-            <Text style={{fontSize: 18, fontWeight: "500"}}>Нет подключения к сети</Text>
+            <Text style={{fontSize: 18, fontWeight: "500"}}>No connection</Text>
             {!loading ? <Pressable style={styles.buttonContainer} onPress={async () => {
                 setLoading(true)
                 const isConnected = await NetInfo.fetch().then(state => state.isConnected);
                 if (!isConnected) {
-                    Toast.show("Проверьте подключение к сети", Toast.LONG)
+                    Toast.show("Check connection", Toast.LONG)
                     setLoading(false)
                 } else {
                     if (auth.currentUser !== null) {
@@ -84,12 +84,12 @@ export default function App() {
                             store.dispatch(signOut())
                             setLoading(false)
                             setNoInternet(false)
-                            Toast.show("Ошибка авторизации", Toast.LONG)
+                            Toast.show("Authentication error", Toast.LONG)
                         }
                     }
                 }
             }}>
-                <Text style={styles.buttonText}>Попробовать снова</Text>
+                <Text style={styles.buttonText}>Try again</Text>
             </Pressable>
             :
                 <ActivityIndicator />

@@ -68,7 +68,7 @@ export default function CampaignUpdateScreen({route: {params: {campaign}}}: Upda
     const requestUpdate = async () => {
         const newTotal = isNaN(Number(totalAmount)) ? 0 : Number(totalAmount)
         if (newTotal < campaign.totalamount) {
-            Alert.alert('Ошибка', 'Сумма сбора не может быть уменьшена', [
+            Alert.alert('Error', 'Collected amount can not be reduced', [
                 {text: 'OK'},
             ]);
             return
@@ -85,14 +85,14 @@ export default function CampaignUpdateScreen({route: {params: {campaign}}}: Upda
             nav.pop()
         } catch (e) {
             console.log(e)
-            Toast.show("Ошибка обновления сбора", Toast.LONG)
+            Toast.show("Campaign update error", Toast.LONG)
         }
     }
 
     return <>
         <Spinner
             visible={state.updateLoading}
-            textContent={"Обновление..."}
+            textContent={"Updating..."}
             textStyle={{color: "white"}}
         />
 
@@ -114,12 +114,12 @@ export default function CampaignUpdateScreen({route: {params: {campaign}}}: Upda
 
         <View style={styles.container}>
 
-            <Text style={[styles.title]}>Необходимо собрать</Text>
+            <Text style={[styles.title]}>Required sum</Text>
 
             <View style={{width: "100%", height: "5%", marginBottom: "1%"}}>
                 <TextInput
                     style={{...styles.textInput, height: "100%"}}
-                    placeholder={"Необходимо собрать"}
+                    placeholder={"Required sum"}
                     autoCorrect={false}
                     value={totalAmount}
                     keyboardType={"numeric"}
@@ -128,12 +128,12 @@ export default function CampaignUpdateScreen({route: {params: {campaign}}}: Upda
                 <SvgXml xml={iconRouble} style={{position: "absolute", right: "2%", top: "45%"}}/>
             </View>
 
-            <Text style={[styles.title]}>Добавить к собранной сумме</Text>
+            <Text style={[styles.title]}>Add to collected amount</Text>
 
             <View style={{width: "100%", height: "5%", marginBottom: "1%"}}>
                 <TextInput
                     style={{...styles.textInput, height: "100%"}}
-                    placeholder={"Сумма"}
+                    placeholder={"Sum"}
                     autoCorrect={false}
                     value={amount}
                     keyboardType={"numeric"}
@@ -144,7 +144,7 @@ export default function CampaignUpdateScreen({route: {params: {campaign}}}: Upda
 
 
             <Text style={[styles.title]}>
-                Тэги
+                Tags
             </Text>
             <View style={{marginVertical: "1%"}}>
                 <TagSelect
@@ -165,11 +165,11 @@ export default function CampaignUpdateScreen({route: {params: {campaign}}}: Upda
 
             <Pressable style={{flexDirection: "row", alignItems: "center", marginVertical: "1%"}} onPress={() => {setHighPriority(prev => !prev)}}>
                 <Checkbox onChange={() => {setHighPriority(prev => !prev)}} checked={highPriority}/>
-                <Text style={{marginLeft: 10}}>Срочный сбор</Text>
+                <Text style={{marginLeft: 10}}>Urgent campaign</Text>
             </Pressable>
 
 
-            <Text style={[styles.title, {marginVertical: "1%"}]}>Ограничение по времени</Text>
+            <Text style={[styles.title, {marginVertical: "1%"}]}>Deadline</Text>
 
             <Pressable style={{height: "5%", width: "100%", marginBottom: "2%"}}
                        onPress={() => setDatePickerOpen(true)}>
@@ -182,7 +182,7 @@ export default function CampaignUpdateScreen({route: {params: {campaign}}}: Upda
                 />
             </Pressable>
         </View>
-        <Button containerStyle={{marginVertical: "1%", bottom: 10}} onPress={requestUpdate} text={"Готово"}
+        <Button containerStyle={{marginVertical: "1%", bottom: 10}} onPress={requestUpdate} text={"Done"}
         />
     </>
 }

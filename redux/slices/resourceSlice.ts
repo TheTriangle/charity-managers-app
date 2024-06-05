@@ -9,28 +9,28 @@ interface initialStateType {
 const initialState: initialStateType = {
     tags: [
         {
-            id: 1, title: "дети"
+            id: 1, title: "kids"
         },
         {
-            id: 2, title: "семьи"
+            id: 2, title: "families"
         },
         {
-            id: 3, title: "животные"
+            id: 3, title: "animals"
         },
         {
-            id: 4, title: "инвалиды"
+            id: 4, title: "healthcare"
         },
         {
-            id: 5, title: "бездомные"
+            id: 5, title: "homeless"
         },
         {
-            id: 6, title: "незлечимо больные"
+            id: 6, title: "terminally ill"
         },
         {
-            id: 7, title: "религиозные"
+            id: 7, title: "religious"
         },
         {
-            id: 8, title: "улучшение жизни"
+            id: 8, title: "quality of life"
         },
 
 

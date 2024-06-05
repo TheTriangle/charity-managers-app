@@ -22,7 +22,7 @@ export default function ProfileFill() {
     const [social, setSocial] = useState<string>("")
     const [description, setDescription] = useState<string>("")
 
-    const options = [{id: 1, title: "Частные сборы"}, {id: 2, title: "Представлять НКО"}]
+    const options = [{id: 1, title: "Personal fundraising"}, {id: 2, title: "Represent a registered organisation"}]
 
     const fillProfile = async () => {
         try {
@@ -36,9 +36,9 @@ export default function ProfileFill() {
         } catch (e) {
             // @ts-ignore
             if (e.message == "No internet connection") {
-                Toast.show("Нет подключения к сети", Toast.LONG)
+                Toast.show("No internet connection", Toast.LONG)
             } else {
-                Toast.show("Ошибка загрузки данных", Toast.LONG)
+                Toast.show("Error loading data", Toast.LONG)
             }
         }
     }
@@ -58,37 +58,37 @@ export default function ProfileFill() {
         <View style={styles.container}>
             <Spinner
                 visible={profileState.loading}
-                textContent={'Загрузка...'}
+                textContent={'Loading...'}
                 textStyle={{color: "white"}}
             />
             <KeyboardAvoidingView
                 style={{width: "100%"}}
                 behavior={"position"}>
 
-                <Text style={styles.header}>Информация о вас</Text>
-                <Text style={styles.title}>Для чего вы планируете использовать приложение</Text>
+                <Text style={styles.header}>Your information</Text>
+                <Text style={styles.title}>What will you use the app for</Text>
                 <ButtonRow data={options} onPress={handleButtonPress} selected={selectedOptions}/>
-                <Text style={styles.title}>Персональная информация</Text>
+                <Text style={styles.title}>Personal information</Text>
                 <TextInput
                     style={styles.textInput}
-                    placeholder={"Ваше ФИО"}
+                    placeholder={"Your first and last name"}
                     autoCorrect={false}
                     onChangeText={(text) => setName(text)}
                 />
                 <TextInputMask
                     style={styles.textInput}
-                    placeholder={"Контактный телефон"}
+                    placeholder={"Contact number"}
                     onChangeText={(formatted, extracted) => setPhone(extracted ? "7" + extracted : "")}
                     mask={"+7 ([000]) [000]-[00]-[00]"}
                     inputMode={"tel"}
                 />
                 <TextInput
                     style={styles.textInput}
-                    placeholder={"Соцсеть (необязательно)"}
+                    placeholder={"Social networks (optional)"}
                     autoCorrect={false}
                     onChangeText={(text) => setSocial(text)}
                 />
-                <Text style={styles.title}>Дополнительно</Text>
+                <Text style={styles.title}>Additional</Text>
                 <TextInput multiline={true}
                            numberOfLines={15}
                            style={[styles.textInput, {
@@ -96,11 +96,11 @@ export default function ProfileFill() {
                            }]}
                            maxLength={1500}
                            onChangeText={(text) => setDescription(text)}
-                           placeholder={"Расскажите о сборах, которые планируете проводитеть (представляемые организации, род деятельности и т.д.)"}/>
+                           placeholder={"What kind of fundraising campaigns are you planning to create (represented charities, kind of work etc)"}/>
 
             </KeyboardAvoidingView>
 
-            <Button text={"Готово"} onPress={fillProfile} active={infoFilled()}/>
+            <Button text={"Done"} onPress={fillProfile} active={infoFilled()}/>
 
         </View>
     );

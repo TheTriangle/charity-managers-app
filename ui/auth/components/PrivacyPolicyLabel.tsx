@@ -10,13 +10,13 @@ export default function PrivacyPolicyLabel() {
         fontSize: 10,
         bottom: 10
     }}>
-        Продолжая, вы соглашаетесь с <Text
+        By continuing, you agree to с <Text
         style={{color: 'grey', textDecorationLine: "underline"}}
         onPress={() => {
             Linking.openURL('https://fukenrice.github.io/charity-managers-app/')
         }}
     >
-        Политикой конфиденциальности
+        Confidentiality policy
     </Text>
     </Text>
 }

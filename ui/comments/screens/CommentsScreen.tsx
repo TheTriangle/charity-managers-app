@@ -34,7 +34,7 @@ export default function CommentsScreen({route: {params: {post, campaignID, chari
             await dispatch(getComments({postID: post.id, campaignID: campaignID})).unwrap()
         } catch (e) {
             console.log(e)
-            Toast.show("Не удалось загрузить комментарии", Toast.SHORT)
+            Toast.show("Could not load comments", Toast.SHORT)
         }
     }
 
@@ -62,7 +62,7 @@ export default function CommentsScreen({route: {params: {post, campaignID, chari
             })
         } catch (e) {
             console.log(e)
-            Toast.show("Не удалось оставить комментарий", Toast.LONG)
+            Toast.show("Could not leave a comment", Toast.LONG)
         }
     }
 
@@ -92,7 +92,7 @@ export default function CommentsScreen({route: {params: {post, campaignID, chari
                 multiline={true}
                 maxLength={700}
                 style={{...textInput, height: textInputHeight, flex: 1}}
-                placeholder={"Добавить комментарий"}
+                placeholder={"Leave a comment"}
                 onChangeText={(text) => setComment(text)}
             />
             <SvgXml xml={iconSend} style={{marginLeft: 10}} onPress={postComment}/>

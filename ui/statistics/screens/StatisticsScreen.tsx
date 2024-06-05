@@ -28,7 +28,7 @@ export default function StatisticsScreen({route: {params: {id, isCampaign}}}: St
             await dispatch(getStatistics({id: id, isCampaign: isCampaign})).unwrap()
         } catch (e) {
             console.log(e)
-            Toast.show("Не удалось загузить данные статистику", Toast.LONG)
+            Toast.show("Could not load statistics", Toast.LONG)
         }
     }
 
@@ -67,17 +67,17 @@ export default function StatisticsScreen({route: {params: {id, isCampaign}}}: St
     return <ScrollView style={{flex: 1}} contentContainerStyle={styles.container}>
         <Spinner
             visible={state.loading}
-            textContent={'Загрузка...'}
+            textContent={'Loading...'}
             textStyle={{color: "white"}}
         />
 
         {state.error == null ?
             !state.loading && <View>
-                <Text style={styles.title}>Уникальных благотворителей: <Text
+                <Text style={styles.title}>Unique donors: <Text
                     style={{fontWeight: "400"}}>{state.uniqueDonorsOverall}</Text></Text>
-                <Text style={styles.title}>Уникальных благотворителей за месяц: <Text
+                <Text style={styles.title}>Unique donors last month: <Text
                     style={{fontWeight: "400"}}>{state.uniqueDonorsMonth}</Text></Text>
-                <Text style={styles.title}>Количество подписчиков по месяцам</Text>
+                <Text style={styles.title}>Unique donors based on month</Text>
                 <LineChart
                     data={subscribersData}
                     width={useSafeAreaFrame().width}
@@ -85,7 +85,7 @@ export default function StatisticsScreen({route: {params: {id, isCampaign}}}: St
                     chartConfig={chartConfig}
                 />
 
-                <Text style={styles.title}>Собранные суммы по месяцам</Text>
+                <Text style={styles.title}>Collected amount each month</Text>
                 <LineChart
                     data={donationsData}
                     width={useSafeAreaFrame().width}
@@ -94,7 +94,7 @@ export default function StatisticsScreen({route: {params: {id, isCampaign}}}: St
                 />
             </View>
             :
-            !state.loading && <Button onPress={fetchStats} text={"Попробовать снова"}/>
+            !state.loading && <Button onPress={fetchStats} text={"Try again"}/>
         }
 
     </ScrollView>

@@ -87,19 +87,19 @@ export default function CharityEditScreen({route: {params: {charityID, location,
             if (isFirebaseError(e)) {
                 console.log(e.message)
             }
-            Toast.show("Не удалось отредактировать данные", Toast.LONG)
+            Toast.show("Could not edit data", Toast.LONG)
         }
     }
 
     return <ScrollView>
         <Spinner
             visible={state.editLoading}
-            textContent={'Редактирование...'}
+            textContent={'Editing...'}
             textStyle={{color: "white"}}
         />
         <View style={styles.container}>
-            <Text style={[styles.header]}>Видят благотворители</Text>
-            <Text style={[styles.title, {marginVertical}]}>Краткое описание</Text>
+            <Text style={[styles.header]}>Visible to donors</Text>
+            <Text style={[styles.title, {marginVertical}]}>Short description</Text>
 
             <TextInput multiline={true}
                        numberOfLines={15}
@@ -112,8 +112,8 @@ export default function CharityEditScreen({route: {params: {charityID, location,
                        maxLength={300}
                        value={briefDesc}
                        onChangeText={(text) => setBriefDesc(text)}
-                       placeholder={"Краткое описание"}/>
-            <Text style={[styles.title, {marginVertical}]}>Полное описание</Text>
+                       placeholder={"Short description"}/>
+            <Text style={[styles.title, {marginVertical}]}>Full description</Text>
             <TextInput multiline={true}
                        style={[styles.textInput, {
                            height: screenHeight * 0.22,
@@ -123,8 +123,8 @@ export default function CharityEditScreen({route: {params: {charityID, location,
                        }]}
                        value={fullDesc}
                        onChangeText={(text) => setFullDesc(text)}
-                       placeholder={"Полное описание"}/>
-            <Text style={[styles.title, {marginVertical}]}>Сайт или соц. сеть</Text>
+                       placeholder={"Full description"}/>
+            <Text style={[styles.title, {marginVertical}]}>Website or social network account</Text>
             <View style={{
                 flexDirection: "row",
                 height: textInputHeight,
@@ -134,13 +134,13 @@ export default function CharityEditScreen({route: {params: {charityID, location,
                 <SvgXml xml={iconSocial} style={{marginRight: "1%"}}/>
                 <TextInput
                     style={{...styles.textInput, flex: 1, height: "100%"}}
-                    placeholder={"Сайт или аккаунт в соц. сети"}
+                    placeholder={"Website or social network account"}
                     value={social}
                     autoCorrect={false}
                     onChangeText={(text) => setSocial(text)}
                 />
             </View>
-            <Text style={[styles.title, {marginVertical}]}>Адрес</Text>
+            <Text style={[styles.title, {marginVertical}]}>Address</Text>
             <View style={{
                 flexDirection: "row",
                 height: textInputHeight,
@@ -156,7 +156,7 @@ export default function CharityEditScreen({route: {params: {charityID, location,
                 })}>
                     <TextInput
                         style={{...styles.textInput, flex: 1, height: "100%", marginVertical: 0, color: "black"}}
-                        placeholder={"Адрес (необязательно)"}
+                        placeholder={"Address (optional)"}
                         value={selectedAddress}
                         autoCorrect={false}
                         editable={false}
@@ -165,7 +165,7 @@ export default function CharityEditScreen({route: {params: {charityID, location,
 
             </View>
             <Text>
-                На что направлена работа организации?
+                What kind of work does your organisation do?
             </Text>
             <View style={{marginVertical: marginVertical}}>
                 <TagSelect
@@ -183,16 +183,16 @@ export default function CharityEditScreen({route: {params: {charityID, location,
                     }}
                 />
             </View>
-            <Text style={[styles.header]}>Видит только модератор</Text>
-            <Text style={[styles.title, {marginVertical: marginVertical}]}>Контакты</Text>
+            <Text style={[styles.header]}>Only visible to the moderation team</Text>
+            <Text style={[styles.title, {marginVertical: marginVertical}]}>Contacts</Text>
             <TextInput
                 style={[styles.textInput, {height: textInputHeight, marginVertical: marginVertical}]}
                 value={managerContact}
-                placeholder={"Ваш контакт для связи"}
+                placeholder={"Your contacts"}
                 autoCorrect={false}
                 onChangeText={(text) => setManagerContact(text)}
             />
-            <Button containerStyle={{marginVertical: marginVertical}} onPress={editCharity} text={"Готово"}
+            <Button containerStyle={{marginVertical: marginVertical}} onPress={editCharity} text={"Done"}
                     active={formValid()}
             />
         </View>

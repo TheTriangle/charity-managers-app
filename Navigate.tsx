@@ -43,7 +43,7 @@ const organizationsTabOptions = {
         const color = focused ? "#2E5C40" : "white"
         return <SvgXml xml={iconHome} stroke={"#2E5C40"} fill={color}/>;
     },
-    tabBarLabel: "Организации",
+    tabBarLabel: "Organisations",
     tabBarShowLabel: false
 
 }
@@ -56,7 +56,7 @@ const profileTabOptions = {
         const color = focused ? "#2E5C40" : "white"
         return <SvgXml xml={iconProfile} fill={color}/>;
     },
-    tabBarLabel: "Организации",
+    tabBarLabel: "Organisations",
     tabBarShowLabel: false
 
 }

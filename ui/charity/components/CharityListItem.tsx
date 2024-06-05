@@ -12,7 +12,7 @@ export default function CharityListItem({charity, onPress}: {
             <Text style={styles.label}>{charity.name}</Text>
             <Text style={{marginBottom: 10}}>{charity.briefDescription}</Text>
             <View style={styles.buttonContainer}>
-                <Text style={styles.buttonText}>Открыть</Text>
+                <Text style={styles.buttonText}>Open</Text>
             </View>
         </TouchableOpacity>
     );
